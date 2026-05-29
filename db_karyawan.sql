@@ -1,17 +1,9 @@
--- ============================================================
--- DATABASE SETUP: Sistem Manajemen Karyawan
--- Jalankan script ini di MySQL/phpMyAdmin sebelum menjalankan aplikasi
--- ============================================================
-
 CREATE DATABASE IF NOT EXISTS db_karyawan
     CHARACTER SET utf8mb4
     COLLATE utf8mb4_unicode_ci;
 
 USE db_karyawan;
 
--- ============================================================
--- Tabel Karyawan
--- ============================================================
 CREATE TABLE IF NOT EXISTS karyawan (
     id                  INT AUTO_INCREMENT PRIMARY KEY,
     nik                 VARCHAR(20) NOT NULL UNIQUE,
@@ -36,9 +28,6 @@ CREATE TABLE IF NOT EXISTS karyawan (
     updated_at          TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 ) ENGINE=InnoDB;
 
--- ============================================================
--- Tabel KPI
--- ============================================================
 CREATE TABLE IF NOT EXISTS kpi (
     id                  INT AUTO_INCREMENT PRIMARY KEY,
     karyawan_id         INT NOT NULL,
@@ -59,9 +48,6 @@ CREATE TABLE IF NOT EXISTS kpi (
     FOREIGN KEY (karyawan_id) REFERENCES karyawan(id) ON DELETE CASCADE
 ) ENGINE=InnoDB;
 
--- ============================================================
--- Tabel Absensi
--- ============================================================
 CREATE TABLE IF NOT EXISTS absensi (
     id               INT AUTO_INCREMENT PRIMARY KEY,
     karyawan_id      INT NOT NULL,
@@ -79,9 +65,8 @@ CREATE TABLE IF NOT EXISTS absensi (
     FOREIGN KEY (karyawan_id) REFERENCES karyawan(id) ON DELETE CASCADE
 ) ENGINE=InnoDB;
 
--- ============================================================
--- Data contoh (opsional, hapus jika tidak diperlukan)
--- ============================================================
+-- Data contoh (opsional)
+
 INSERT INTO karyawan (nik, nama, email, no_telp, jabatan, departemen, gaji_pokok,
     tunjangan_transport, tunjangan_makan, tunjangan_kesehatan, level_jabatan,
     jenis_kelamin, pendidikan_terakhir, status, tanggal_masuk)
