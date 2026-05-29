@@ -1,9 +1,8 @@
 # 🏢 Sistem Manajemen Karyawan (Employee Management System)
-**Tugas Praktikum PBO — Tema: Sistem Manajemen Karyawan**
 
 ---
 
-## 📁 Struktur Project (MVC Pattern)
+## 📁 Struktur Project 
 
 ```
 EmployeeManagement/
@@ -37,31 +36,6 @@ EmployeeManagement/
 │       └── Main.java                   ← Entry point + Main Frame
 │
 └── db_karyawan.sql                     ← Script database MySQL
-```
-
----
-
-## ✅ Implementasi Pilar-Pilar OOP
-
-| Pilar | Implementasi |
-|-------|-------------|
-| **Encapsulation** | Semua field `private` dengan getter/setter di `AbstractKaryawan`, `ModelKaryawan`, `ModelKPI`, `ModelAbsensi` |
-| **Inheritance** | `ModelKaryawan extends AbstractKaryawan`, `DAO implements InterfaceDAO`, `ModelTable extends AbstractTableModel` |
-| **Abstraction** | `AbstractKaryawan` (abstract class) dengan method abstrak `hitungGajiPokok()`, `hitungTunjangan()`, `getJabatan()`, `getDepartemen()`. `InterfaceDAO<T>` (interface generic) |
-| **Polymorphism** | Override `hitungTotalGaji()` dan `getStatusKaryawan()` di `ModelKaryawan`. Method `simpan/update/hapus/getAll` diimplementasikan berbeda di `DAO`, `DAOKPI`, `DAOAbsensi` |
-
----
-
-## ✅ Materi Wajib Lainnya
-
-| Materi | Implementasi |
-|--------|-------------|
-| **Exception Handling** | `try-catch SQLException`, `IllegalArgumentException` di validasi bisnis, `SQLIntegrityConstraintViolationException` untuk duplikat NIK |
-| **JDBC** | `Connector.java` (Singleton), semua DAO menggunakan `PreparedStatement`, `ResultSet`, `Connection` |
-| **MultiThread** | Semua operasi database berjalan di background thread (`new Thread(...).start()`), hasil dikembalikan ke EDT via `SwingUtilities.invokeLater()` |
-| **GUI Swing** | `JFrame`, `JPanel`, `JTable`, `JDialog`, `JComboBox`, `JSlider`, `JScrollPane`, `CardLayout`, `BoxLayout`, `GridLayout`, `BorderLayout`, `Timer` |
-
----
 
 ## 🚀 Cara Menjalankan di NetBeans
 
