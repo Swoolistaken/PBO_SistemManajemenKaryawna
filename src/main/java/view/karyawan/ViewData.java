@@ -374,6 +374,15 @@ public class ViewData extends JPanel {
             callback.onEdit(tableModel.getKaryawan(row));
         }
     }
+    // Tambahkan dua method ini di ViewData.java
+
+    public void setAksesHapus(boolean boleh) {
+        btnHapus.setVisible(boleh);
+    }
+
+    public void setAksesTambah(boolean boleh) {
+        btnTambah.setVisible(boleh);
+    }
 
     private void hapusSelected() {
         int row = table.getSelectedRow();
