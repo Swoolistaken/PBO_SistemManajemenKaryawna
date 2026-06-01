@@ -1,4 +1,4 @@
-package model.karyawan;
+package model.kpi;
 
 import java.util.Date;
 

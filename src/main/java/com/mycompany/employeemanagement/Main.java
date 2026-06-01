@@ -125,7 +125,7 @@ public class Main extends JFrame {
         panelKonten.add(viewData, "KARYAWAN");
         panelKonten.add(editData, "KPI");
         panelKonten.add(viewAbsensi, "ABSENSI");
-        panelKonten.add(buatPanelGaji(), "GAJI");
+//        panelKonten.add(buatPanelGaji(), "GAJI");
 
         add(panelKonten, BorderLayout.CENTER);
     }
@@ -177,20 +177,26 @@ public class Main extends JFrame {
     private JButton buatNavBtn(String teks, String panel) {
         JButton btn = new JButton(teks);
         btn.setFont(new Font("Segoe UI", Font.PLAIN, 14));
-        btn.setForeground(new Color(200, 215, 245));
+
+        // ===== FIX: set eksplisit agar tidak ngeblend =====
+        btn.setForeground(new Color(200, 215, 245));  // teks terang
         btn.setBackground(BG_NAV);
-        btn.setBorder(new EmptyBorder(14, 20, 14, 20));
-        btn.setFocusPainted(false);
+        btn.setOpaque(true);        
+        btn.setBorderPainted(false); 
+        btn.setContentAreaFilled(true);
+        // ===================================================
+
         btn.setHorizontalAlignment(SwingConstants.LEFT);
         btn.setMaximumSize(new Dimension(Integer.MAX_VALUE, 50));
         btn.setCursor(new Cursor(Cursor.HAND_CURSOR));
-        btn.setContentAreaFilled(true);
+        btn.setBorder(new EmptyBorder(14, 20, 14, 20));
 
         btn.addMouseListener(new MouseAdapter() {
             @Override
             public void mouseEntered(MouseEvent e) {
                 if (btn != btnAktif) {
                     btn.setBackground(BG_NAV_HOVER);
+                    btn.setForeground(Color.WHITE);
                 }
             }
 
@@ -198,6 +204,7 @@ public class Main extends JFrame {
             public void mouseExited(MouseEvent e) {
                 if (btn != btnAktif) {
                     btn.setBackground(BG_NAV);
+                    btn.setForeground(new Color(200, 215, 245));
                 }
             }
         });
@@ -205,7 +212,6 @@ public class Main extends JFrame {
         btn.addActionListener(e -> {
             tampilkan(panel);
             setAktif(btn);
-            // Refresh data saat navigasi
             if ("KARYAWAN".equals(panel)) {
                 viewData.loadData();
             }
@@ -215,11 +221,15 @@ public class Main extends JFrame {
             if ("ABSENSI".equals(panel)) {
                 viewAbsensi.refreshKaryawan();
             }
+            if ("KONTRAK".equals(panel)) {
+//                viewKontrak.refreshKaryawan();
+            }
         });
 
         return btn;
     }
 
+// ===== GANTI method setAktif dengan ini =====
     private void setAktif(JButton btn) {
         if (btnAktif != null) {
             btnAktif.setBackground(BG_NAV);
@@ -227,44 +237,43 @@ public class Main extends JFrame {
         }
         btnAktif = btn;
         btn.setBackground(BG_NAV_AKTIF);
-        btn.setForeground(Color.WHITE);
+        btn.setForeground(Color.WHITE);   // teks putih penuh saat aktif
     }
 
     private void tampilkan(String nama) {
         cardLayout.show(panelKonten, nama);
     }
 
-    private JPanel buatPanelGaji() {
-        JPanel p = new JPanel(new BorderLayout());
-        p.setBackground(new Color(245, 247, 251));
-
-        JLabel lbl = new JLabel("<html><center>💰 Modul Penggajian<br><small>Fitur kalkulasi slip gaji & export laporan<br>— Coming Soon —</small></center></html>");
-        lbl.setFont(new Font("Segoe UI", Font.PLAIN, 16));
-        lbl.setForeground(new Color(100, 110, 140));
-        lbl.setHorizontalAlignment(SwingConstants.CENTER);
-
-        // Simulasi kalkulasi gaji
-        JButton btnKalkulasi = new JButton("🔢 Kalkulasi Gaji Bulan Ini");
-        btnKalkulasi.setFont(new Font("Segoe UI", Font.BOLD, 14));
-        btnKalkulasi.setBackground(new Color(34, 100, 180));
-        btnKalkulasi.setForeground(Color.WHITE);
-        btnKalkulasi.setFocusPainted(false);
-        btnKalkulasi.setPreferredSize(new Dimension(250, 40));
-        btnKalkulasi.addActionListener(e -> kalkulasiGaji());
-
-        JPanel center = new JPanel(new GridBagLayout());
-        center.setBackground(new Color(245, 247, 251));
-        GridBagConstraints gbc = new GridBagConstraints();
-        gbc.gridy = 0;
-        center.add(lbl, gbc);
-        gbc.gridy = 1;
-        gbc.insets = new Insets(20, 0, 0, 0);
-        center.add(btnKalkulasi, gbc);
-
-        p.add(center, BorderLayout.CENTER);
-        return p;
-    }
-
+//    private JPanel buatPanelGaji() {
+//        JPanel p = new JPanel(new BorderLayout());
+//        p.setBackground(new Color(245, 247, 251));
+//
+//        JLabel lbl = new JLabel("<html><center>💰 Modul Penggajian<br><small>Fitur kalkulasi slip gaji & export laporan<br>— Coming Soon —</small></center></html>");
+//        lbl.setFont(new Font("Segoe UI", Font.PLAIN, 16));
+//        lbl.setForeground(new Color(100, 110, 140));
+//        lbl.setHorizontalAlignment(SwingConstants.CENTER);
+//
+//        // Simulasi kalkulasi gaji
+//        JButton btnKalkulasi = new JButton("🔢 Kalkulasi Gaji Bulan Ini");
+//        btnKalkulasi.setFont(new Font("Segoe UI", Font.BOLD, 14));
+//        btnKalkulasi.setBackground(new Color(34, 100, 180));
+//        btnKalkulasi.setForeground(Color.WHITE);
+//        btnKalkulasi.setFocusPainted(false);
+//        btnKalkulasi.setPreferredSize(new Dimension(250, 40));
+//        btnKalkulasi.addActionListener(e -> kalkulasiGaji());
+//
+//        JPanel center = new JPanel(new GridBagLayout());
+//        center.setBackground(new Color(245, 247, 251));
+//        GridBagConstraints gbc = new GridBagConstraints();
+//        gbc.gridy = 0;
+//        center.add(lbl, gbc);
+//        gbc.gridy = 1;
+//        gbc.insets = new Insets(20, 0, 0, 0);
+//        center.add(btnKalkulasi, gbc);
+//
+//        p.add(center, BorderLayout.CENTER);
+//        return p;
+//    }
     private void kalkulasiGaji() {
         new Thread(() -> {
             try {

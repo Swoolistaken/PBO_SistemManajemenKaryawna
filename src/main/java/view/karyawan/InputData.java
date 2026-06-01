@@ -12,8 +12,7 @@ import java.text.SimpleDateFormat;
 import java.util.List;
 
 /**
- * Form input/edit data karyawan
- * Implementasi: GUI SWING, EXCEPTION HANDLING
+ * Form input/edit data karyawan Implementasi: GUI SWING, EXCEPTION HANDLING
  */
 public class InputData extends JDialog {
 
@@ -53,7 +52,7 @@ public class InputData extends JDialog {
         setLocationRelativeTo(getParent());
         setResizable(false);
         setLayout(new BorderLayout());
-        getContentPane().setBackground(new Color(245, 247, 251));
+        getContentPane().setBackground(new Color(30, 33, 43));
 
         add(buatPanelHeader(), BorderLayout.NORTH);
         add(buatPanelForm(), BorderLayout.CENTER);
@@ -62,7 +61,7 @@ public class InputData extends JDialog {
 
     private JPanel buatPanelHeader() {
         JPanel p = new JPanel(new BorderLayout());
-        p.setBackground(new Color(40, 60, 120));
+        p.setBackground(new Color(35, 50, 100));
         p.setBorder(new EmptyBorder(15, 20, 15, 20));
         JLabel lbl = new JLabel(isEdit ? "✎ Edit Data Karyawan" : "➕ Tambah Karyawan Baru");
         lbl.setFont(new Font("Segoe UI", Font.BOLD, 18));
@@ -74,7 +73,7 @@ public class InputData extends JDialog {
     private JScrollPane buatPanelForm() {
         JPanel form = new JPanel();
         form.setLayout(new BoxLayout(form, BoxLayout.Y_AXIS));
-        form.setBackground(new Color(245, 247, 251));
+        form.setBackground(new Color(30, 33, 43));
         form.setBorder(new EmptyBorder(15, 25, 10, 25));
 
         // === Seksi Data Pribadi ===
@@ -123,16 +122,32 @@ public class InputData extends JDialog {
 
         // Total gaji
         JPanel panelTotal = new JPanel(new FlowLayout(FlowLayout.LEFT, 10, 5));
-        panelTotal.setBackground(new Color(230, 240, 255));
-        panelTotal.setBorder(new LineBorder(new Color(180, 200, 240)));
+        panelTotal.setBackground(new Color(28, 45, 75));
+        panelTotal.setBorder(new LineBorder(new Color(55, 70, 110)));
         btnHitung = new JButton("Hitung Total");
+        btnHitung.setFont(new Font("Segoe UI", Font.BOLD, 12));
         btnHitung.setBackground(new Color(70, 130, 200));
         btnHitung.setForeground(Color.WHITE);
         btnHitung.setFocusPainted(false);
+        btnHitung.setOpaque(true);
+        btnHitung.setContentAreaFilled(true);
+        btnHitung.setBorder(new EmptyBorder(6, 12, 6, 12));
+        btnHitung.setCursor(new Cursor(Cursor.HAND_CURSOR));
+        btnHitung.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseEntered(MouseEvent e) {
+                btnHitung.setBackground(new Color(50, 105, 170));
+            }
+
+            @Override
+            public void mouseExited(MouseEvent e) {
+                btnHitung.setBackground(new Color(70, 130, 200));
+            }
+        });
         btnHitung.addActionListener(e -> hitungTotal());
         lblTotalGaji = new JLabel("Total Gaji: Rp 0");
         lblTotalGaji.setFont(new Font("Segoe UI", Font.BOLD, 14));
-        lblTotalGaji.setForeground(new Color(30, 120, 30));
+        lblTotalGaji.setForeground(new Color(80, 220, 100));
         panelTotal.add(btnHitung);
         panelTotal.add(lblTotalGaji);
         form.add(panelTotal);
@@ -142,7 +157,7 @@ public class InputData extends JDialog {
 
         JPanel panelAlamat = new JPanel(new BorderLayout(8, 0));
         panelAlamat.setMaximumSize(new Dimension(Integer.MAX_VALUE, 70));
-        panelAlamat.setBackground(new Color(245, 247, 251));
+        panelAlamat.setBackground(new Color(30, 33, 43));
         JLabel lblAlamat = new JLabel("Alamat:");
         lblAlamat.setPreferredSize(new Dimension(160, 20));
         txtAlamat = new JTextField();
@@ -153,7 +168,7 @@ public class InputData extends JDialog {
 
         JPanel panelKeahlian = new JPanel(new BorderLayout(8, 0));
         panelKeahlian.setMaximumSize(new Dimension(Integer.MAX_VALUE, 80));
-        panelKeahlian.setBackground(new Color(245, 247, 251));
+        panelKeahlian.setBackground(new Color(30, 33, 43));
         JLabel lblKeahlian = new JLabel("Keahlian:");
         lblKeahlian.setPreferredSize(new Dimension(160, 20));
         txtKeahlian = new JTextArea(3, 20);
@@ -171,12 +186,29 @@ public class InputData extends JDialog {
 
     private JPanel buatPanelTombol() {
         JPanel p = new JPanel(new FlowLayout(FlowLayout.RIGHT, 10, 12));
-        p.setBackground(new Color(235, 238, 248));
-        p.setBorder(new MatteBorder(1, 0, 0, 0, new Color(200, 205, 225)));
+        p.setBackground(new Color(22, 25, 35));
+        p.setBorder(new MatteBorder(1, 0, 0, 0, new Color(55, 65, 90)));
 
         btnBatal = new JButton("Batal");
-        btnBatal.setFont(new Font("Segoe UI", Font.PLAIN, 13));
+        btnBatal.setFont(new Font("Segoe UI", Font.BOLD, 13));
+        btnBatal.setBackground(new Color(130, 130, 150));
+        btnBatal.setForeground(Color.WHITE);
+        btnBatal.setFocusPainted(false);
+        btnBatal.setOpaque(true);
+        btnBatal.setContentAreaFilled(true);
         btnBatal.setPreferredSize(new Dimension(100, 34));
+        btnBatal.setCursor(new Cursor(Cursor.HAND_CURSOR));
+        btnBatal.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseEntered(MouseEvent e) {
+                btnBatal.setBackground(new Color(100, 100, 120));
+            }
+
+            @Override
+            public void mouseExited(MouseEvent e) {
+                btnBatal.setBackground(new Color(130, 130, 150));
+            }
+        });
         btnBatal.addActionListener(e -> dispose());
 
         btnSimpan = new JButton(isEdit ? "Update" : "Simpan");
@@ -184,7 +216,21 @@ public class InputData extends JDialog {
         btnSimpan.setBackground(new Color(34, 139, 34));
         btnSimpan.setForeground(Color.WHITE);
         btnSimpan.setFocusPainted(false);
+        btnSimpan.setOpaque(true);
+        btnSimpan.setContentAreaFilled(true);
         btnSimpan.setPreferredSize(new Dimension(120, 34));
+        btnSimpan.setCursor(new Cursor(Cursor.HAND_CURSOR));
+        btnSimpan.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseEntered(MouseEvent e) {
+                btnSimpan.setBackground(new Color(20, 110, 20));
+            }
+
+            @Override
+            public void mouseExited(MouseEvent e) {
+                btnSimpan.setBackground(new Color(34, 139, 34));
+            }
+        });
         btnSimpan.addActionListener(e -> simpanData());
 
         p.add(btnBatal);
@@ -195,7 +241,7 @@ public class InputData extends JDialog {
     // ===== Helper UI =====
     private JPanel buatGrid() {
         JPanel p = new JPanel(new GridLayout(0, 2, 10, 8));
-        p.setBackground(new Color(245, 247, 251));
+        p.setBackground(new Color(30, 33, 43));
         p.setAlignmentX(Component.LEFT_ALIGNMENT);
         p.setMaximumSize(new Dimension(Integer.MAX_VALUE, Integer.MAX_VALUE));
         return p;
@@ -204,8 +250,8 @@ public class InputData extends JDialog {
     private JLabel buatSeksi(String judul) {
         JLabel lbl = new JLabel(judul);
         lbl.setFont(new Font("Segoe UI", Font.BOLD, 13));
-        lbl.setForeground(new Color(40, 60, 120));
-        lbl.setBorder(new MatteBorder(0, 0, 1, 0, new Color(180, 200, 240)));
+        lbl.setForeground(new Color(160, 185, 255));
+        lbl.setBorder(new MatteBorder(0, 0, 1, 0, new Color(55, 70, 110)));
         lbl.setAlignmentX(Component.LEFT_ALIGNMENT);
         lbl.setMaximumSize(new Dimension(Integer.MAX_VALUE, 30));
         return lbl;
@@ -235,10 +281,25 @@ public class InputData extends JDialog {
     private void hitungTunjangan() {
         int level = cboLevelJabatan.getSelectedIndex() + 1;
         switch (level) {
-            case 4: txtTunjangTransport.setText("2000000"); txtTunjangMakan.setText("1500000"); txtTunjangKesehatan.setText("3000000"); break;
-            case 3: txtTunjangTransport.setText("1500000"); txtTunjangMakan.setText("1000000"); txtTunjangKesehatan.setText("2000000"); break;
-            case 2: txtTunjangTransport.setText("1000000"); txtTunjangMakan.setText("750000");  txtTunjangKesehatan.setText("1500000"); break;
-            default: txtTunjangTransport.setText("500000");  txtTunjangMakan.setText("500000");  txtTunjangKesehatan.setText("1000000");
+            case 4:
+                txtTunjangTransport.setText("2000000");
+                txtTunjangMakan.setText("1500000");
+                txtTunjangKesehatan.setText("3000000");
+                break;
+            case 3:
+                txtTunjangTransport.setText("1500000");
+                txtTunjangMakan.setText("1000000");
+                txtTunjangKesehatan.setText("2000000");
+                break;
+            case 2:
+                txtTunjangTransport.setText("1000000");
+                txtTunjangMakan.setText("750000");
+                txtTunjangKesehatan.setText("1500000");
+                break;
+            default:
+                txtTunjangTransport.setText("500000");
+                txtTunjangMakan.setText("500000");
+                txtTunjangKesehatan.setText("1000000");
         }
         hitungTotal();
     }
@@ -250,7 +311,7 @@ public class InputData extends JDialog {
             double tm = parseDouble(txtTunjangMakan.getText());
             double tk = parseDouble(txtTunjangKesehatan.getText());
             double total = gp + tt + tm + tk;
-            java.text.NumberFormat nf = java.text.NumberFormat.getInstance(new java.util.Locale("id","ID"));
+            java.text.NumberFormat nf = java.text.NumberFormat.getInstance(new java.util.Locale("id", "ID"));
             lblTotalGaji.setText("Total Gaji: Rp " + nf.format(total));
         } catch (NumberFormatException e) {
             lblTotalGaji.setText("Total Gaji: (format angka salah)");
@@ -271,8 +332,12 @@ public class InputData extends JDialog {
         cboJenisKelamin.setSelectedItem(k.getJenisKelamin());
 
         SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
-        if (k.getTanggalLahir() != null) txtTanggalLahir.setText(sdf.format(k.getTanggalLahir()));
-        if (k.getTanggalMasuk() != null) txtTanggalMasuk.setText(sdf.format(k.getTanggalMasuk()));
+        if (k.getTanggalLahir() != null) {
+            txtTanggalLahir.setText(sdf.format(k.getTanggalLahir()));
+        }
+        if (k.getTanggalMasuk() != null) {
+            txtTanggalMasuk.setText(sdf.format(k.getTanggalMasuk()));
+        }
 
         cboJabatan.setSelectedItem(k.getJabatan());
         cboDepartemen.setSelectedItem(k.getDepartemen());
@@ -283,7 +348,9 @@ public class InputData extends JDialog {
         txtTunjangTransport.setText(String.valueOf((long) k.getTunjanganTransport()));
         txtTunjangMakan.setText(String.valueOf((long) k.getTunjanganMakan()));
         txtTunjangKesehatan.setText(String.valueOf((long) k.getTunjanganKesehatan()));
-        if (k.getKeahlian() != null) txtKeahlian.setText(k.getKeahlian());
+        if (k.getKeahlian() != null) {
+            txtKeahlian.setText(k.getKeahlian());
+        }
         hitungTotal();
     }
 
@@ -300,10 +367,12 @@ public class InputData extends JDialog {
 
             SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
             try {
-                if (!txtTanggalLahir.getText().isEmpty())
+                if (!txtTanggalLahir.getText().isEmpty()) {
                     karyawan.setTanggalLahir(sdf.parse(txtTanggalLahir.getText()));
-                if (!txtTanggalMasuk.getText().isEmpty())
+                }
+                if (!txtTanggalMasuk.getText().isEmpty()) {
                     karyawan.setTanggalMasuk(sdf.parse(txtTanggalMasuk.getText()));
+                }
             } catch (ParseException e) {
                 throw new IllegalArgumentException("Format tanggal harus dd/MM/yyyy. Contoh: 01/01/1990");
             }
@@ -329,26 +398,37 @@ public class InputData extends JDialog {
             btnSimpan.setText("Menyimpan...");
 
             ControllerKaryawan.DataListener listener = new ControllerKaryawan.DataListener() {
-                @Override public void onSuccess(String p) {
+                @Override
+                public void onSuccess(String p) {
                     saved = true;
                     JOptionPane.showMessageDialog(InputData.this, p, "Berhasil", JOptionPane.INFORMATION_MESSAGE);
                     dispose();
                 }
-                @Override public void onError(String p) {
+
+                @Override
+                public void onError(String p) {
                     btnSimpan.setEnabled(true);
                     btnSimpan.setText(isEdit ? "Update" : "Simpan");
                     JOptionPane.showMessageDialog(InputData.this, p, "Error", JOptionPane.ERROR_MESSAGE);
                 }
-                @Override public void onDataLoaded(List<ModelKaryawan> d) {}
+
+                @Override
+                public void onDataLoaded(List<ModelKaryawan> d) {
+                }
             };
 
-            if (isEdit) controller.updateKaryawanAsync(karyawan, listener);
-            else controller.simpanKaryawanAsync(karyawan, listener);
+            if (isEdit) {
+                controller.updateKaryawanAsync(karyawan, listener);
+            } else {
+                controller.simpanKaryawanAsync(karyawan, listener);
+            }
 
         } catch (IllegalArgumentException e) {
             JOptionPane.showMessageDialog(this, e.getMessage(), "Validasi", JOptionPane.WARNING_MESSAGE);
         }
     }
 
-    public boolean isSaved() { return saved; }
+    public boolean isSaved() {
+        return saved;
+    }
 }

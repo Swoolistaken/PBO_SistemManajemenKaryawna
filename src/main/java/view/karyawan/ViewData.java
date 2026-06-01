@@ -12,8 +12,7 @@ import java.awt.event.*;
 import java.util.List;
 
 /**
- * View utama daftar karyawan
- * Implementasi: GUI SWING, MULTITHREAD (async load)
+ * View utama daftar karyawan Implementasi: GUI SWING, MULTITHREAD (async load)
  */
 public class ViewData extends JPanel {
 
@@ -28,9 +27,13 @@ public class ViewData extends JPanel {
 
     // Callback ke parent frame
     public interface ActionCallback {
+
         void onTambah();
+
         void onEdit(ModelKaryawan k);
+
         void onLihatKPI(ModelKaryawan k);
+
         void onLihatAbsensi(ModelKaryawan k);
     }
 
@@ -48,7 +51,7 @@ public class ViewData extends JPanel {
 
     private void initComponents() {
         setLayout(new BorderLayout(0, 0));
-        setBackground(new Color(245, 247, 251));
+        setBackground(new Color(30, 33, 43));
 
         add(buatPanelHeader(), BorderLayout.NORTH);
         add(buatPanelTabel(), BorderLayout.CENTER);
@@ -60,16 +63,13 @@ public class ViewData extends JPanel {
         panel.setBackground(new Color(245, 247, 251));
         panel.setBorder(new EmptyBorder(15, 20, 10, 20));
 
-        // Judul
         JLabel lblJudul = new JLabel("Data Karyawan");
         lblJudul.setFont(new Font("Segoe UI", Font.BOLD, 22));
         lblJudul.setForeground(new Color(30, 40, 80));
 
-        // Panel toolbar kanan
         JPanel panelKanan = new JPanel(new FlowLayout(FlowLayout.RIGHT, 8, 0));
         panelKanan.setOpaque(false);
 
-        // Filter departemen
         cboDept = new JComboBox<>(new String[]{
             "Semua", "IT", "HRD", "Finance", "Marketing",
             "Operations", "Legal", "Procurement", "R&D"
@@ -78,25 +78,29 @@ public class ViewData extends JPanel {
         cboDept.setPreferredSize(new Dimension(140, 32));
         cboDept.addActionListener(e -> filterByDept());
 
-        // Search
         txtCari = new JTextField(18);
         txtCari.setFont(new Font("Segoe UI", Font.PLAIN, 13));
         txtCari.setPreferredSize(new Dimension(200, 32));
-        txtCari.putClientProperty("JTextField.placeholderText", "Cari nama/NIK/jabatan...");
         txtCari.addKeyListener(new KeyAdapter() {
-            @Override public void keyReleased(KeyEvent e) { cariData(); }
+            @Override
+            public void keyReleased(KeyEvent e) {
+                cariData();
+            }
         });
 
-        // Tombol
-        btnTambah  = buatTombol("+ Tambah",  new Color(34, 139, 34));
-        btnEdit    = buatTombol("✎ Edit",     new Color(30, 100, 200));
-        btnHapus   = buatTombol("✕ Hapus",   new Color(200, 50, 50));
+        btnTambah = buatTombol("+ Tambah", new Color(34, 139, 34));
+        btnEdit = buatTombol("✎ Edit", new Color(30, 100, 200));
+        btnHapus = buatTombol("✕ Hapus", new Color(200, 50, 50));
         btnRefresh = buatTombol("↺ Refresh", new Color(100, 100, 120));
 
         btnEdit.setEnabled(false);
         btnHapus.setEnabled(false);
 
-        btnTambah.addActionListener(e -> { if (callback != null) callback.onTambah(); });
+        btnTambah.addActionListener(e -> {
+            if (callback != null) {
+                callback.onTambah();
+            }
+        });
         btnEdit.addActionListener(e -> editSelected());
         btnHapus.addActionListener(e -> hapusSelected());
         btnRefresh.addActionListener(e -> loadData());
@@ -116,22 +120,55 @@ public class ViewData extends JPanel {
 
     private JPanel buatPanelTabel() {
         JPanel panel = new JPanel(new BorderLayout());
-        panel.setBackground(Color.WHITE);
+        panel.setBackground(Color.BLACK);
         panel.setBorder(new CompoundBorder(
-            new EmptyBorder(0, 15, 10, 15),
-            new LineBorder(new Color(220, 224, 235), 1, true)
+                new EmptyBorder(0, 15, 10, 15),
+                new LineBorder(new Color(55, 65, 90), 1, true)
         ));
 
         table = new JTable(tableModel);
+        table.setBackground(new Color(42, 46, 60));
+        table.setForeground(new Color(210, 215, 230));
+        table.setSelectionBackground(new Color(50, 75, 130));
+        table.setSelectionForeground(Color.WHITE);
+        table.setGridColor(new Color(55, 65, 90));
+        table.setRowHeight(36);
+        table.setShowGrid(false);
+        table.setIntercellSpacing(new Dimension(0, 0));
         table.setFont(new Font("Segoe UI", Font.PLAIN, 13));
         table.setRowHeight(36);
         table.setShowGrid(false);
         table.setIntercellSpacing(new Dimension(0, 0));
-        table.setSelectionBackground(new Color(220, 235, 255));
-        table.setSelectionForeground(Color.DARK_GRAY);
-        table.getTableHeader().setFont(new Font("Segoe UI", Font.BOLD, 13));
-        table.getTableHeader().setBackground(new Color(40, 60, 120));
-        table.getTableHeader().setForeground(Color.WHITE);
+        table.setSelectionBackground(Color.BLACK);
+        table.setSelectionForeground(Color.BLACK);
+        table.getTableHeader().setDefaultRenderer(
+                new DefaultTableCellRenderer() {
+            @Override
+            public Component getTableCellRendererComponent(
+                    JTable table,
+                    Object value,
+                    boolean isSelected,
+                    boolean hasFocus,
+                    int row,
+                    int column) {
+
+                JLabel lbl = (JLabel) super.getTableCellRendererComponent(
+                        table, value, isSelected, hasFocus, row, column);
+
+                lbl.setOpaque(true);
+                lbl.setBackground(new Color(35, 50, 100));
+                lbl.setForeground(Color.WHITE);
+                lbl.setHorizontalAlignment(SwingConstants.CENTER);
+                lbl.setFont(new Font("Segoe UI", Font.BOLD, 13));
+
+                return lbl;
+            }
+        }
+        );
+
+        table.getTableHeader().setPreferredSize(new Dimension(0, 40));
+        table.getTableHeader().setReorderingAllowed(false);
+
         table.getTableHeader().setPreferredSize(new Dimension(0, 40));
 
         // Alternating row colors
@@ -141,16 +178,20 @@ public class ViewData extends JPanel {
                     boolean sel, boolean focus, int row, int col) {
                 Component c = super.getTableCellRendererComponent(t, val, sel, focus, row, col);
                 if (!sel) {
-                    c.setBackground(row % 2 == 0 ? Color.WHITE : new Color(248, 250, 255));
+                    c.setBackground(row % 2 == 0 ? new Color(42, 46, 60) : new Color(38, 41, 54));
                 }
                 // Status coloring
                 if (col == 8 && val != null) {
                     String status = val.toString();
-                    if (status.equals("AKTIF")) c.setForeground(new Color(0, 140, 0));
-                    else if (status.equals("NONAKTIF")) c.setForeground(new Color(200, 0, 0));
-                    else c.setForeground(new Color(180, 120, 0));
+                    if (status.equals("AKTIF")) {
+                        c.setForeground(new Color(0, 140, 0));
+                    } else if (status.equals("NONAKTIF")) {
+                        c.setForeground(new Color(200, 0, 0));
+                    } else {
+                        c.setForeground(new Color(180, 120, 0));
+                    }
                 } else {
-                    c.setForeground(Color.DARK_GRAY);
+                    c.setForeground(new Color(210, 215, 230));
                 }
                 ((JLabel) c).setBorder(new EmptyBorder(0, 10, 0, 10));
                 return c;
@@ -174,26 +215,32 @@ public class ViewData extends JPanel {
         table.addMouseListener(new MouseAdapter() {
             @Override
             public void mouseClicked(MouseEvent e) {
-                if (e.getClickCount() == 2) editSelected();
+                if (e.getClickCount() == 2) {
+                    editSelected();
+                }
             }
         });
 
         // Right-click context menu
         JPopupMenu popup = new JPopupMenu();
-        JMenuItem miEdit    = new JMenuItem("✎ Edit Data");
-        JMenuItem miKPI     = new JMenuItem("📊 Lihat KPI");
+        JMenuItem miEdit = new JMenuItem("✎ Edit Data");
+        JMenuItem miKPI = new JMenuItem("📊 Lihat KPI");
         JMenuItem miAbsensi = new JMenuItem("📋 Lihat Absensi");
-        JMenuItem miHapus   = new JMenuItem("✕ Hapus");
+        JMenuItem miHapus = new JMenuItem("✕ Hapus");
         miHapus.setForeground(Color.RED);
 
         miEdit.addActionListener(e -> editSelected());
         miKPI.addActionListener(e -> {
             int row = table.getSelectedRow();
-            if (row >= 0 && callback != null) callback.onLihatKPI(tableModel.getKaryawan(row));
+            if (row >= 0 && callback != null) {
+                callback.onLihatKPI(tableModel.getKaryawan(row));
+            }
         });
         miAbsensi.addActionListener(e -> {
             int row = table.getSelectedRow();
-            if (row >= 0 && callback != null) callback.onLihatAbsensi(tableModel.getKaryawan(row));
+            if (row >= 0 && callback != null) {
+                callback.onLihatAbsensi(tableModel.getKaryawan(row));
+            }
         });
         miHapus.addActionListener(e -> hapusSelected());
 
@@ -213,12 +260,12 @@ public class ViewData extends JPanel {
 
     private JPanel buatPanelStatus() {
         JPanel panel = new JPanel(new FlowLayout(FlowLayout.LEFT));
-        panel.setBackground(new Color(245, 247, 251));
+        panel.setBackground(new Color(30, 33, 43));
         panel.setBorder(new EmptyBorder(0, 20, 10, 20));
 
         lblStatus = new JLabel("Memuat data...");
         lblStatus.setFont(new Font("Segoe UI", Font.ITALIC, 12));
-        lblStatus.setForeground(new Color(100, 110, 140));
+        lblStatus.setForeground(new Color(160, 170, 200));
         panel.add(lblStatus);
         return panel;
     }
@@ -226,14 +273,29 @@ public class ViewData extends JPanel {
     private JButton buatTombol(String teks, Color bg) {
         JButton btn = new JButton(teks);
         btn.setFont(new Font("Segoe UI", Font.BOLD, 12));
-        btn.setBackground(bg);
         btn.setForeground(Color.WHITE);
-        btn.setBorder(new EmptyBorder(6, 14, 6, 14));
+        btn.setBackground(bg);
+        btn.setOpaque(true);                // WAJIB agar background tampil di Windows
+        btn.setBorderPainted(false);        // hapus border bawaan Windows L&F
         btn.setFocusPainted(false);
+        btn.setContentAreaFilled(true);
+        btn.setPreferredSize(new Dimension(95, 32));
         btn.setCursor(new Cursor(Cursor.HAND_CURSOR));
+
         btn.addMouseListener(new MouseAdapter() {
-            @Override public void mouseEntered(MouseEvent e) { btn.setBackground(bg.darker()); }
-            @Override public void mouseExited(MouseEvent e)  { btn.setBackground(bg); }
+            @Override
+            public void mouseEntered(MouseEvent e) {
+                if (btn.isEnabled()) {
+                    btn.setBackground(bg.darker());
+                }
+            }
+
+            @Override
+            public void mouseExited(MouseEvent e) {
+                if (btn.isEnabled()) {
+                    btn.setBackground(bg);
+                }
+            }
         });
         return btn;
     }
@@ -241,16 +303,21 @@ public class ViewData extends JPanel {
     // ===================================================================
     // ===== Data operations =====
     // ===================================================================
-
     public void loadData() {
         lblStatus.setText("Memuat data...");
         controller.loadAllKaryawanAsync(new ControllerKaryawan.DataListener() {
-            @Override public void onSuccess(String pesan) {}
-            @Override public void onError(String pesan) {
+            @Override
+            public void onSuccess(String pesan) {
+            }
+
+            @Override
+            public void onError(String pesan) {
                 lblStatus.setText("Error: " + pesan);
                 JOptionPane.showMessageDialog(ViewData.this, pesan, "Error DB", JOptionPane.ERROR_MESSAGE);
             }
-            @Override public void onDataLoaded(List<ModelKaryawan> data) {
+
+            @Override
+            public void onDataLoaded(List<ModelKaryawan> data) {
                 tableModel.setData(data);
                 lblStatus.setText("Total: " + data.size() + " karyawan ditemukan");
             }
@@ -260,9 +327,17 @@ public class ViewData extends JPanel {
     private void cariData() {
         String keyword = txtCari.getText().trim();
         controller.cariKaryawanAsync(keyword, new ControllerKaryawan.DataListener() {
-            @Override public void onSuccess(String pesan) {}
-            @Override public void onError(String pesan) { lblStatus.setText("Error: " + pesan); }
-            @Override public void onDataLoaded(List<ModelKaryawan> data) {
+            @Override
+            public void onSuccess(String pesan) {
+            }
+
+            @Override
+            public void onError(String pesan) {
+                lblStatus.setText("Error: " + pesan);
+            }
+
+            @Override
+            public void onDataLoaded(List<ModelKaryawan> data) {
                 tableModel.setData(data);
                 lblStatus.setText(data.size() + " hasil ditemukan untuk: \"" + keyword + "\"");
             }
@@ -272,9 +347,17 @@ public class ViewData extends JPanel {
     private void filterByDept() {
         String dept = (String) cboDept.getSelectedItem();
         controller.loadKaryawanByDeptAsync(dept, new ControllerKaryawan.DataListener() {
-            @Override public void onSuccess(String p) {}
-            @Override public void onError(String p) { lblStatus.setText("Error: " + p); }
-            @Override public void onDataLoaded(List<ModelKaryawan> data) {
+            @Override
+            public void onSuccess(String p) {
+            }
+
+            @Override
+            public void onError(String p) {
+                lblStatus.setText("Error: " + p);
+            }
+
+            @Override
+            public void onDataLoaded(List<ModelKaryawan> data) {
                 tableModel.setData(data);
                 lblStatus.setText(data.size() + " karyawan di departemen: " + dept);
             }
@@ -283,28 +366,44 @@ public class ViewData extends JPanel {
 
     private void editSelected() {
         int row = table.getSelectedRow();
-        if (row < 0) { JOptionPane.showMessageDialog(this, "Pilih karyawan terlebih dahulu!"); return; }
-        if (callback != null) callback.onEdit(tableModel.getKaryawan(row));
+        if (row < 0) {
+            JOptionPane.showMessageDialog(this, "Pilih karyawan terlebih dahulu!");
+            return;
+        }
+        if (callback != null) {
+            callback.onEdit(tableModel.getKaryawan(row));
+        }
     }
 
     private void hapusSelected() {
         int row = table.getSelectedRow();
-        if (row < 0) { JOptionPane.showMessageDialog(this, "Pilih karyawan terlebih dahulu!"); return; }
+        if (row < 0) {
+            JOptionPane.showMessageDialog(this, "Pilih karyawan terlebih dahulu!");
+            return;
+        }
         ModelKaryawan k = tableModel.getKaryawan(row);
         int konfirm = JOptionPane.showConfirmDialog(this,
-            "Yakin hapus karyawan \"" + k.getNama() + "\"?\nData KPI dan absensi terkait juga akan terhapus!",
-            "Konfirmasi Hapus", JOptionPane.YES_NO_OPTION, JOptionPane.WARNING_MESSAGE);
-        if (konfirm != JOptionPane.YES_OPTION) return;
+                "Yakin hapus karyawan \"" + k.getNama() + "\"?\nData KPI dan absensi terkait juga akan terhapus!",
+                "Konfirmasi Hapus", JOptionPane.YES_NO_OPTION, JOptionPane.WARNING_MESSAGE);
+        if (konfirm != JOptionPane.YES_OPTION) {
+            return;
+        }
 
         controller.hapusKaryawanAsync(k.getId(), new ControllerKaryawan.DataListener() {
-            @Override public void onSuccess(String p) {
+            @Override
+            public void onSuccess(String p) {
                 JOptionPane.showMessageDialog(ViewData.this, p, "Sukses", JOptionPane.INFORMATION_MESSAGE);
                 loadData();
             }
-            @Override public void onError(String p) {
+
+            @Override
+            public void onError(String p) {
                 JOptionPane.showMessageDialog(ViewData.this, p, "Error", JOptionPane.ERROR_MESSAGE);
             }
-            @Override public void onDataLoaded(List<ModelKaryawan> d) {}
+
+            @Override
+            public void onDataLoaded(List<ModelKaryawan> d) {
+            }
         });
     }
 }

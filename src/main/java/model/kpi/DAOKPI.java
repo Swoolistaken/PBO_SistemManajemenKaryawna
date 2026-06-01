@@ -1,9 +1,10 @@
-package model.karyawan;
+package model.kpi;
 
 import model.Connector;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
+import model.karyawan.InterfaceDAO;
 
 public class DAOKPI implements InterfaceDAO<ModelKPI> {
 

@@ -30,7 +30,7 @@ public class Dashboard extends JPanel {
 
     private void initUI() {
         setLayout(new BorderLayout(15, 15));
-        setBackground(new Color(240, 244, 252));
+        setBackground(new Color(25, 28, 38));
         setBorder(new EmptyBorder(20, 20, 20, 20));
 
         add(buatHeaderWelcome(), BorderLayout.NORTH);
@@ -55,7 +55,7 @@ public class Dashboard extends JPanel {
 
         JLabel lblSub = new JLabel("Employee Management System — Kelola karyawan dengan mudah & efisien");
         lblSub.setFont(new Font("Segoe UI", Font.PLAIN, 13));
-        lblSub.setForeground(new Color(180, 200, 240));
+        lblSub.setForeground(new Color(170, 195, 240));
 
         JPanel kiri = new JPanel(new GridLayout(2, 1, 0, 4));
         kiri.setOpaque(false);
@@ -82,7 +82,7 @@ public class Dashboard extends JPanel {
 
         lblTotalKaryawan = buatKartu(p, "👥 Total Karyawan", "...", new Color(30, 100, 200));
         lblKaryawanAktif = buatKartu(p, "✅ Karyawan Aktif", "...", new Color(34, 139, 34));
-        lblTotalKPI      = buatKartu(p, "📊 Total Penilaian KPI", "...", new Color(180, 80, 0));
+        lblTotalKPI = buatKartu(p, "📊 Total Penilaian KPI", "...", new Color(180, 80, 0));
         lblDeptTerbanyak = buatKartu(p, "🏆 Dept. Terbesar", "...", new Color(120, 30, 160));
 
         return p;
@@ -90,15 +90,15 @@ public class Dashboard extends JPanel {
 
     private JLabel buatKartu(JPanel parent, String judul, String nilai, Color warna) {
         JPanel kartu = new JPanel(new BorderLayout(0, 8));
-        kartu.setBackground(Color.WHITE);
+        kartu.setBackground(new Color(42, 46, 60));
         kartu.setBorder(new CompoundBorder(
-            new LineBorder(warna, 2, true),
-            new EmptyBorder(18, 20, 18, 20)
+                new LineBorder(warna, 2, true),
+                new EmptyBorder(18, 20, 18, 20)
         ));
 
         JLabel lblJudul = new JLabel(judul);
         lblJudul.setFont(new Font("Segoe UI", Font.PLAIN, 13));
-        lblJudul.setForeground(new Color(80, 90, 110));
+        lblJudul.setForeground(new Color(170, 180, 210));
 
         JLabel lblNilai = new JLabel(nilai);
         lblNilai.setFont(new Font("Segoe UI", Font.BOLD, 32));
@@ -118,15 +118,15 @@ public class Dashboard extends JPanel {
 
     private JPanel buatPanelGrafik() {
         JPanel p = new JPanel(new BorderLayout());
-        p.setBackground(Color.WHITE);
+        p.setBackground(new Color(42, 46, 60));
         p.setBorder(new CompoundBorder(
-            new LineBorder(new Color(210, 220, 240), 1, true),
-            new EmptyBorder(15, 20, 15, 20)
+                new LineBorder(new Color(55, 65, 90), 1, true),
+                new EmptyBorder(15, 20, 15, 20)
         ));
 
         JLabel judul = new JLabel("📈 Distribusi Karyawan per Departemen");
         judul.setFont(new Font("Segoe UI", Font.BOLD, 14));
-        judul.setForeground(new Color(30, 50, 110));
+        judul.setForeground(new Color(180, 205, 255));
         judul.setBorder(new MatteBorder(0, 0, 1, 0, new Color(200, 215, 240)));
         p.add(judul, BorderLayout.NORTH);
 
@@ -137,7 +137,7 @@ public class Dashboard extends JPanel {
                 gambarGrafik(g);
             }
         };
-        panelGrafikDept.setBackground(Color.WHITE);
+        panelGrafikDept.setBackground(new Color(42, 46, 60));
         panelGrafikDept.setPreferredSize(new Dimension(0, 200));
         p.add(panelGrafikDept, BorderLayout.CENTER);
 
@@ -157,7 +157,11 @@ public class Dashboard extends JPanel {
         g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
 
         int maxVal = 1;
-        for (int v : dataDept) if (v > maxVal) maxVal = v;
+        for (int v : dataDept) {
+            if (v > maxVal) {
+                maxVal = v;
+            }
+        }
 
         int w = panelGrafikDept.getWidth();
         int h = panelGrafikDept.getHeight();
@@ -166,23 +170,23 @@ public class Dashboard extends JPanel {
         int graphH = h - marginBottom - marginTop;
         int barW = graphW / (DEPT.length * 2);
 
-        g2.setColor(new Color(240, 243, 250));
+        g2.setColor(new Color(35, 40, 55));
         g2.fillRect(marginLeft, marginTop, graphW, graphH);
 
         // Grid lines
-        g2.setColor(new Color(210, 215, 230));
+        g2.setColor(new Color(60, 68, 90));
         for (int i = 0; i <= 5; i++) {
             int y = marginTop + graphH - (graphH * i / 5);
             g2.drawLine(marginLeft, y, marginLeft + graphW, y);
-            g2.setColor(new Color(130, 140, 160));
+            g2.setColor(new Color(180, 190, 215));
             g2.setFont(new Font("Segoe UI", Font.PLAIN, 10));
             g2.drawString(String.valueOf(maxVal * i / 5), 2, y + 4);
-            g2.setColor(new Color(210, 215, 230));
+            g2.setColor(new Color(60, 68, 90));
         }
 
         for (int i = 0; i < DEPT.length; i++) {
             int x = marginLeft + i * (graphW / DEPT.length) + (graphW / DEPT.length - barW) / 2;
-            int barH = dataDept[i] == 0 ? 0 : Math.max(5, (int)(((double) dataDept[i] / maxVal) * graphH));
+            int barH = dataDept[i] == 0 ? 0 : Math.max(5, (int) (((double) dataDept[i] / maxVal) * graphH));
             int y = marginTop + graphH - barH;
 
             g2.setColor(WARNA_DEPT[i]);
@@ -190,13 +194,13 @@ public class Dashboard extends JPanel {
             g2.setColor(WARNA_DEPT[i].darker());
             g2.drawRoundRect(x, y, barW, barH, 6, 6);
 
-            g2.setColor(new Color(50, 60, 90));
+            g2.setColor(new Color(220, 230, 255));
             g2.setFont(new Font("Segoe UI", Font.BOLD, 10));
-            g2.drawString(String.valueOf(dataDept[i]), x + barW/2 - 5, y - 3);
+            g2.drawString(String.valueOf(dataDept[i]), x + barW / 2 - 5, y - 3);
 
             g2.setFont(new Font("Segoe UI", Font.PLAIN, 10));
             FontMetrics fm = g2.getFontMetrics();
-            int tx = x + barW/2 - fm.stringWidth(DEPT[i])/2;
+            int tx = x + barW / 2 - fm.stringWidth(DEPT[i]) / 2;
             g2.drawString(DEPT[i], tx, h - 10);
         }
     }
@@ -216,27 +220,34 @@ public class Dashboard extends JPanel {
 
         for (String[] f : fitur) {
             JPanel kartu = new JPanel(new BorderLayout(5, 2));
-            kartu.setBackground(Color.WHITE);
+            kartu.setBackground(new Color(42, 46, 60));
             kartu.setBorder(new CompoundBorder(
-                new LineBorder(new Color(210, 220, 240), 1, true),
-                new EmptyBorder(8, 12, 8, 12)
+                    new LineBorder(new Color(55, 65, 90), 1, true),
+                    new EmptyBorder(8, 12, 8, 12)
             ));
             kartu.setCursor(new Cursor(Cursor.HAND_CURSOR));
 
             JLabel icon = new JLabel(f[0] + " " + f[1]);
             icon.setFont(new Font("Segoe UI", Font.BOLD, 13));
-            icon.setForeground(new Color(30, 60, 130));
+            icon.setForeground(new Color(150, 185, 255));
 
             JLabel sub = new JLabel(f[2]);
             sub.setFont(new Font("Segoe UI", Font.PLAIN, 11));
-            sub.setForeground(new Color(100, 110, 130));
+            sub.setForeground(new Color(160, 170, 200));
 
             kartu.add(icon, BorderLayout.CENTER);
             kartu.add(sub, BorderLayout.SOUTH);
 
             kartu.addMouseListener(new MouseAdapter() {
-                @Override public void mouseEntered(MouseEvent e) { kartu.setBackground(new Color(235, 243, 255)); }
-                @Override public void mouseExited(MouseEvent e)  { kartu.setBackground(Color.WHITE); }
+                @Override
+                public void mouseEntered(MouseEvent e) {
+                    kartu.setBackground(new Color(55, 65, 95));
+                }
+
+                @Override
+                public void mouseExited(MouseEvent e) {
+                    kartu.setBackground(new Color(42, 46, 60));
+                }
             });
 
             p.add(kartu);
@@ -254,20 +265,28 @@ public class Dashboard extends JPanel {
 
                 // Hitung per dept
                 java.util.Map<String, Integer> countDept = new java.util.LinkedHashMap<>();
-                for (String d : DEPT) countDept.put(d, 0);
+                for (String d : DEPT) {
+                    countDept.put(d, 0);
+                }
                 for (ModelKaryawan k : semua) {
-                    if (countDept.containsKey(k.getDepartemen()))
+                    if (countDept.containsKey(k.getDepartemen())) {
                         countDept.put(k.getDepartemen(), countDept.get(k.getDepartemen()) + 1);
+                    }
                 }
 
                 // Dept terbesar
                 String deptMax = "-";
                 int maxCount = 0;
                 for (java.util.Map.Entry<String, Integer> e : countDept.entrySet()) {
-                    if (e.getValue() > maxCount) { maxCount = e.getValue(); deptMax = e.getKey(); }
+                    if (e.getValue() > maxCount) {
+                        maxCount = e.getValue();
+                        deptMax = e.getKey();
+                    }
                 }
                 final String deptFinal = deptMax + " (" + maxCount + ")";
-                for (int i = 0; i < DEPT.length; i++) dataDept[i] = countDept.getOrDefault(DEPT[i], 0);
+                for (int i = 0; i < DEPT.length; i++) {
+                    dataDept[i] = countDept.getOrDefault(DEPT[i], 0);
+                }
 
                 final int t = total, a = aktif.size(), kpi = totalKPI;
                 SwingUtilities.invokeLater(() -> {
@@ -286,6 +305,8 @@ public class Dashboard extends JPanel {
     }
 
     public void stopTimer() {
-        if (refreshTimer != null) refreshTimer.stop();
+        if (refreshTimer != null) {
+            refreshTimer.stop();
+        }
     }
 }

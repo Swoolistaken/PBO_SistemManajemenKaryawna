@@ -11,11 +11,8 @@ import java.awt.event.*;
 import java.util.*;
 import java.util.List;
 import java.text.NumberFormat;
+import model.kpi.ModelKPI;
 
-/**
- * View untuk Penilaian KPI Karyawan
- * Implementasi: GUI SWING, MULTITHREAD
- */
 public class EditData extends JPanel {
 
     private final ControllerKaryawan controller;
@@ -41,8 +38,8 @@ public class EditData extends JPanel {
     private double gajiPokokKaryawan = 0;
 
     private final String[] NAMA_BULAN = {
-        "Januari","Februari","Maret","April","Mei","Juni",
-        "Juli","Agustus","September","Oktober","November","Desember"
+        "Januari", "Februari", "Maret", "April", "Mei", "Juni",
+        "Juli", "Agustus", "September", "Oktober", "November", "Desember"
     };
 
     public EditData(ControllerKaryawan controller) {
@@ -53,10 +50,10 @@ public class EditData extends JPanel {
 
     private void initUI() {
         setLayout(new BorderLayout(10, 10));
-        setBackground(new Color(245, 247, 251));
+        setBackground(new Color(30, 33, 43));
 
         JSplitPane split = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT,
-            buatPanelForm(), buatPanelRiwayat());
+                buatPanelForm(), buatPanelRiwayat());
         split.setDividerLocation(450);
         split.setBorder(new EmptyBorder(10, 15, 10, 15));
         split.setResizeWeight(0.45);
@@ -67,17 +64,17 @@ public class EditData extends JPanel {
     private JScrollPane buatPanelForm() {
         JPanel panel = new JPanel();
         panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
-        panel.setBackground(Color.WHITE);
+        panel.setBackground(new Color(42, 46, 60));
         panel.setBorder(new CompoundBorder(
-            new LineBorder(new Color(210, 220, 240), 1, true),
-            new EmptyBorder(15, 15, 15, 15)
+                new LineBorder(new Color(55, 65, 90), 1, true),
+                new EmptyBorder(15, 15, 15, 15)
         ));
 
         // Judul
         JLabel judul = new JLabel("📊 Penilaian KPI Karyawan");
         judul.setFont(new Font("Segoe UI", Font.BOLD, 16));
-        judul.setForeground(new Color(30, 50, 110));
-        judul.setBorder(new MatteBorder(0, 0, 1, 0, new Color(180, 200, 240)));
+        judul.setForeground(new Color(180, 205, 255));
+        judul.setBorder(new MatteBorder(0, 0, 1, 0, new Color(55, 70, 110)));
         judul.setAlignmentX(Component.LEFT_ALIGNMENT);
         judul.setMaximumSize(new Dimension(Integer.MAX_VALUE, 35));
         panel.add(judul);
@@ -90,13 +87,15 @@ public class EditData extends JPanel {
 
         // Periode
         JPanel panelPeriode = new JPanel(new GridLayout(1, 2, 8, 0));
-        panelPeriode.setBackground(Color.WHITE);
+        panelPeriode.setBackground(new Color(42, 46, 60));
         panelPeriode.setAlignmentX(Component.LEFT_ALIGNMENT);
         panelPeriode.setMaximumSize(new Dimension(Integer.MAX_VALUE, 32));
 
         int tahunIni = Calendar.getInstance().get(Calendar.YEAR);
         Integer[] tahunList = new Integer[10];
-        for (int i = 0; i < 10; i++) tahunList[i] = tahunIni - i;
+        for (int i = 0; i < 10; i++) {
+            tahunList[i] = tahunIni - i;
+        }
         cboPeriode = new JComboBox<>(tahunList);
 
         cboBulan = new JComboBox<>(NAMA_BULAN);
@@ -109,22 +108,23 @@ public class EditData extends JPanel {
 
         // ===== Slider Nilai KPI =====
         JLabel lblPenilaian = new JLabel("━━ Penilaian (0 - 100) ━━");
+        lblPenilaian.setForeground(Color.WHITE);
         lblPenilaian.setFont(new Font("Segoe UI", Font.BOLD, 12));
-        lblPenilaian.setForeground(new Color(60, 80, 150));
+        lblPenilaian.setForeground(new Color(150, 175, 240));
         lblPenilaian.setAlignmentX(Component.LEFT_ALIGNMENT);
         panel.add(lblPenilaian);
         panel.add(Box.createVerticalStrut(6));
 
         sliderProduktivitas = buatSlider();
-        sliderKualitas      = buatSlider();
-        sliderKehadiran     = buatSlider();
-        sliderTeamwork      = buatSlider();
-        sliderInovasi       = buatSlider();
+        sliderKualitas = buatSlider();
+        sliderKehadiran = buatSlider();
+        sliderTeamwork = buatSlider();
+        sliderInovasi = buatSlider();
 
-        lblNilaiProd   = new JLabel("0");
-        lblNilaiKual   = new JLabel("0");
-        lblNilaiHadir  = new JLabel("0");
-        lblNilaiTeam   = new JLabel("0");
+        lblNilaiProd = new JLabel("0");
+        lblNilaiKual = new JLabel("0");
+        lblNilaiHadir = new JLabel("0");
+        lblNilaiTeam = new JLabel("0");
         lblNilaiInovasi = new JLabel("0");
 
         panel.add(buatRowSlider("Produktivitas (30%)", sliderProduktivitas, lblNilaiProd));
@@ -136,9 +136,9 @@ public class EditData extends JPanel {
 
         // Hasil KPI
         JPanel panelHasil = new JPanel(new GridLayout(3, 1, 0, 3));
-        panelHasil.setBackground(new Color(235, 245, 255));
+        panelHasil.setBackground(new Color(28, 45, 75));
         panelHasil.setBorder(new CompoundBorder(
-            new LineBorder(new Color(160, 200, 240)), new EmptyBorder(8, 12, 8, 12)
+                new LineBorder(new Color(50, 90, 160)), new EmptyBorder(8, 12, 8, 12)
         ));
         panelHasil.setAlignmentX(Component.LEFT_ALIGNMENT);
         panelHasil.setMaximumSize(new Dimension(Integer.MAX_VALUE, 90));
@@ -147,10 +147,16 @@ public class EditData extends JPanel {
         lblNilaiAkhir.setFont(new Font("Segoe UI", Font.BOLD, 14));
         lblGrade = new JLabel("Grade: -");
         lblGrade.setFont(new Font("Segoe UI", Font.BOLD, 13));
+        txtCatatan = new JTextArea(3, 20);
+        txtCatatan.setBackground(new Color(55, 60, 80));
+        txtCatatan.setForeground(Color.WHITE);
+        txtCatatan.setCaretColor(Color.WHITE);
         lblBonus = new JLabel("Estimasi Bonus: Rp 0");
         lblBonus.setFont(new Font("Segoe UI", Font.PLAIN, 12));
         lblBonus.setForeground(new Color(0, 130, 0));
-
+        lblNilaiAkhir.setForeground(Color.WHITE);
+        lblGrade.setForeground(Color.WHITE);
+        lblBonus.setForeground(Color.WHITE);
         panelHasil.add(lblNilaiAkhir);
         panelHasil.add(lblGrade);
         panelHasil.add(lblBonus);
@@ -162,6 +168,9 @@ public class EditData extends JPanel {
         panel.add(Box.createVerticalStrut(5));
         panel.add(buatLabelKiri("Catatan Atasan:"));
         txtCatatan = new JTextArea(3, 20);
+        txtCatatan.setBackground(new Color(55, 60, 80));
+        txtCatatan.setForeground(Color.WHITE);
+        txtCatatan.setCaretColor(Color.WHITE);
         txtCatatan.setFont(new Font("Segoe UI", Font.PLAIN, 12));
         txtCatatan.setLineWrap(true);
         txtCatatan.setWrapStyleWord(true);
@@ -172,6 +181,9 @@ public class EditData extends JPanel {
         panel.add(Box.createVerticalStrut(5));
         panel.add(buatLabelKiri("Target Periode Berikutnya:"));
         txtTarget = new JTextArea(2, 20);
+        txtTarget.setBackground(new Color(55, 60, 80));
+        txtTarget.setForeground(Color.WHITE);
+        txtTarget.setCaretColor(Color.WHITE);
         txtTarget.setFont(new Font("Segoe UI", Font.PLAIN, 12));
         txtTarget.setLineWrap(true);
         JScrollPane scTarget = new JScrollPane(txtTarget);
@@ -182,13 +194,13 @@ public class EditData extends JPanel {
 
         // Tombol
         JPanel panelTombol = new JPanel(new FlowLayout(FlowLayout.RIGHT, 5, 0));
-        panelTombol.setBackground(Color.WHITE);
+        panelTombol.setBackground(new Color(42, 46, 60));
         panelTombol.setAlignmentX(Component.LEFT_ALIGNMENT);
         panelTombol.setMaximumSize(new Dimension(Integer.MAX_VALUE, 40));
 
-        btnReset  = buatBtn("Reset",  new Color(130, 130, 160));
-        btnHapus  = buatBtn("Hapus",  new Color(200, 50,  50));
-        btnSimpan = buatBtn("Simpan", new Color(34,  139, 34));
+        btnReset = buatBtn("Reset", new Color(130, 130, 160));
+        btnHapus = buatBtn("Hapus", new Color(200, 50, 50));
+        btnSimpan = buatBtn("Simpan", new Color(34, 139, 34));
         btnHapus.setEnabled(false);
 
         btnReset.addActionListener(e -> resetForm());
@@ -209,52 +221,102 @@ public class EditData extends JPanel {
     // ===== Panel Riwayat KPI =====
     private JPanel buatPanelRiwayat() {
         JPanel panel = new JPanel(new BorderLayout(0, 8));
-        panel.setBackground(Color.WHITE);
+        panel.setBackground(new Color(42, 46, 60));
         panel.setBorder(new CompoundBorder(
-            new LineBorder(new Color(210, 220, 240), 1, true),
-            new EmptyBorder(15, 15, 15, 15)
+                new LineBorder(new Color(55, 65, 90), 1, true),
+                new EmptyBorder(15, 15, 15, 15)
         ));
 
         JLabel judul = new JLabel("📋 Riwayat Penilaian KPI");
         judul.setFont(new Font("Segoe UI", Font.BOLD, 15));
-        judul.setForeground(new Color(30, 50, 110));
-        judul.setBorder(new MatteBorder(0, 0, 1, 0, new Color(180, 200, 240)));
+        judul.setForeground(new Color(180, 205, 255));
+        judul.setBorder(new MatteBorder(0, 0, 1, 0, new Color(55, 70, 110)));
         panel.add(judul, BorderLayout.NORTH);
 
         String[] kolom = {"No", "Karyawan", "Tahun", "Bulan", "Nilai", "Grade", "Bonus", "Penilai"};
         modelTabel = new DefaultTableModel(kolom, 0) {
-            @Override public boolean isCellEditable(int r, int c) { return false; }
+            @Override
+            public boolean isCellEditable(int r, int c) {
+                return false;
+            }
         };
         tabelKPI = new JTable(modelTabel);
+        tabelKPI.setBackground(new Color(42, 46, 60));
+        tabelKPI.setForeground(new Color(210, 215, 230));
+        tabelKPI.setSelectionBackground(new Color(50, 75, 130));
+        tabelKPI.setSelectionForeground(Color.WHITE);
+
+        tabelKPI.setGridColor(new Color(55, 65, 90));
+        tabelKPI.setShowGrid(false);
+        tabelKPI.setIntercellSpacing(new Dimension(0, 0));
+
         tabelKPI.setFont(new Font("Segoe UI", Font.PLAIN, 12));
         tabelKPI.setRowHeight(30);
-        tabelKPI.getTableHeader().setBackground(new Color(40, 60, 120));
-        tabelKPI.getTableHeader().setForeground(Color.WHITE);
-        tabelKPI.getTableHeader().setFont(new Font("Segoe UI", Font.BOLD, 12));
-        tabelKPI.setSelectionBackground(new Color(220, 235, 255));
 
-        tabelKPI.addMouseListener(new MouseAdapter() {
-            @Override public void mouseClicked(MouseEvent e) {
-                if (e.getClickCount() == 2) loadKPIKeForm();
+        tabelKPI.getTableHeader().setDefaultRenderer(
+                new DefaultTableCellRenderer() {
+            @Override
+            public Component getTableCellRendererComponent(
+                    JTable table,
+                    Object value,
+                    boolean isSelected,
+                    boolean hasFocus,
+                    int row,
+                    int column) {
+
+                JLabel lbl = (JLabel) super.getTableCellRendererComponent(
+                        table, value, isSelected, hasFocus, row, column);
+
+                lbl.setOpaque(true);
+                lbl.setBackground(new Color(35, 50, 100));
+                lbl.setForeground(Color.WHITE);
+                lbl.setHorizontalAlignment(SwingConstants.CENTER);
+                lbl.setFont(new Font("Segoe UI", Font.BOLD, 12));
+
+                return lbl;
             }
-        });
+        }
+        );
 
-        panel.add(new JScrollPane(tabelKPI), BorderLayout.CENTER);
+        tabelKPI.getTableHeader().setPreferredSize(new Dimension(0, 35));
 
-        JPanel panelFilter = new JPanel(new FlowLayout(FlowLayout.LEFT));
-        panelFilter.setBackground(Color.WHITE);
-        JButton btnMuat = buatBtn("Muat Semua KPI", new Color(60, 100, 180));
-        btnMuat.addActionListener(e -> loadSemuaKPI());
-        panelFilter.add(btnMuat);
-        panel.add(panelFilter, BorderLayout.SOUTH);
+        tabelKPI.setDefaultRenderer(
+                Object.class,
+                new DefaultTableCellRenderer() {
+            @Override
+            public Component getTableCellRendererComponent(
+                    JTable table,
+                    Object value,
+                    boolean selected,
+                    boolean focused,
+                    int row,
+                    int column) {
 
+                JLabel lbl = (JLabel) super.getTableCellRendererComponent(
+                        table, value, selected, focused, row, column);
+
+                if (!selected) {
+                    lbl.setBackground(
+                            row % 2 == 0
+                                    ? new Color(42, 46, 60)
+                                    : new Color(38, 41, 54)
+                    );
+                }
+
+                lbl.setForeground(new Color(210, 215, 230));
+                lbl.setBorder(new EmptyBorder(0, 8, 0, 8));
+
+                return lbl;
+            }
+        }
+        );
         return panel;
     }
 
     // ===== Helpers =====
     private JSlider buatSlider() {
         JSlider s = new JSlider(0, 100, 0);
-        s.setBackground(Color.WHITE);
+        s.setBackground(new Color(42, 46, 60));
         s.setPaintTicks(true);
         s.setMajorTickSpacing(25);
         s.setMinorTickSpacing(5);
@@ -263,12 +325,13 @@ public class EditData extends JPanel {
 
     private JPanel buatRowSlider(String label, JSlider slider, JLabel lblNilai) {
         JPanel p = new JPanel(new BorderLayout(5, 0));
-        p.setBackground(Color.WHITE);
+        p.setBackground(new Color(42, 46, 60));
         p.setAlignmentX(Component.LEFT_ALIGNMENT);
         p.setMaximumSize(new Dimension(Integer.MAX_VALUE, 50));
 
         JLabel lbl = new JLabel(label);
         lbl.setFont(new Font("Segoe UI", Font.PLAIN, 12));
+        lbl.setForeground(Color.WHITE);
         lbl.setPreferredSize(new Dimension(160, 20));
         lblNilai.setFont(new Font("Segoe UI", Font.BOLD, 13));
         lblNilai.setForeground(new Color(40, 100, 200));
@@ -287,21 +350,38 @@ public class EditData extends JPanel {
 
     private JPanel buatRowForm(String label, JComponent comp) {
         JPanel p = new JPanel(new BorderLayout(8, 0));
-        p.setBackground(Color.WHITE);
+        p.setBackground(new Color(42, 46, 60));
         p.setAlignmentX(Component.LEFT_ALIGNMENT);
         p.setMaximumSize(new Dimension(Integer.MAX_VALUE, 32));
+
         JLabel lbl = new JLabel(label);
         lbl.setFont(new Font("Segoe UI", Font.PLAIN, 12));
+        lbl.setForeground(Color.WHITE); // <-- TAMBAH INI
         lbl.setPreferredSize(new Dimension(170, 20));
-        if (comp instanceof JTextField) ((JTextField)comp).setFont(new Font("Segoe UI", Font.PLAIN, 12));
+
+        if (comp instanceof JTextField) {
+            ((JTextField) comp).setFont(new Font("Segoe UI", Font.PLAIN, 12));
+            ((JTextField) comp).setBackground(new Color(55, 60, 80));
+            ((JTextField) comp).setForeground(Color.WHITE);
+            ((JTextField) comp).setCaretColor(Color.WHITE);
+        }
+
+        if (comp instanceof JComboBox) {
+            ((JComboBox<?>) comp).setBackground(new Color(55, 60, 80));
+            ((JComboBox<?>) comp).setForeground(Color.WHITE);
+            ((JComboBox<?>) comp).setFont(new Font("Segoe UI", Font.PLAIN, 12));
+        }
+
         p.add(lbl, BorderLayout.WEST);
         p.add(comp, BorderLayout.CENTER);
+
         return p;
     }
 
     private JLabel buatLabelKiri(String teks) {
         JLabel lbl = new JLabel(teks);
         lbl.setFont(new Font("Segoe UI", Font.PLAIN, 12));
+        lbl.setForeground(Color.WHITE); // <-- TAMBAH
         lbl.setAlignmentX(Component.LEFT_ALIGNMENT);
         lbl.setMaximumSize(new Dimension(Integer.MAX_VALUE, 20));
         return lbl;
@@ -313,13 +393,25 @@ public class EditData extends JPanel {
         btn.setForeground(Color.WHITE);
         btn.setFont(new Font("Segoe UI", Font.BOLD, 12));
         btn.setFocusPainted(false);
+        btn.setOpaque(true);
+        btn.setContentAreaFilled(true);
         btn.setBorder(new EmptyBorder(6, 12, 6, 12));
         btn.setCursor(new Cursor(Cursor.HAND_CURSOR));
+        btn.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseEntered(MouseEvent e) {
+                btn.setBackground(bg.darker());
+            }
+
+            @Override
+            public void mouseExited(MouseEvent e) {
+                btn.setBackground(bg);
+            }
+        });
         return btn;
     }
 
     // ===== Data operations =====
-
     private void loadKaryawan() {
         try {
             daftarKaryawan = controller.getAllKaryawan();
@@ -335,7 +427,10 @@ public class EditData extends JPanel {
 
     private void onKaryawanDipilih() {
         int idx = cboKaryawan.getSelectedIndex() - 1;
-        if (idx < 0) { selectedKaryawanId = -1; return; }
+        if (idx < 0) {
+            selectedKaryawanId = -1;
+            return;
+        }
         ModelKaryawan k = daftarKaryawan.get(idx);
         selectedKaryawanId = k.getId();
         gajiPokokKaryawan = k.getGajiPokok();
@@ -345,11 +440,17 @@ public class EditData extends JPanel {
 
     private void loadRiwayatKPI(int karyawanId) {
         controller.loadKPIByKaryawanAsync(karyawanId, new ControllerKaryawan.KPIListener() {
-            @Override public void onSuccess(String p) {}
-            @Override public void onError(String p) {
+            @Override
+            public void onSuccess(String p) {
+            }
+
+            @Override
+            public void onError(String p) {
                 JOptionPane.showMessageDialog(EditData.this, p, "Error", JOptionPane.ERROR_MESSAGE);
             }
-            @Override public void onDataLoaded(List<ModelKPI> data) {
+
+            @Override
+            public void onDataLoaded(List<ModelKPI> data) {
                 isiTabel(data);
             }
         });
@@ -357,17 +458,23 @@ public class EditData extends JPanel {
 
     private void loadSemuaKPI() {
         controller.loadKPIByPeriodeAsync(
-            (Integer) cboPeriode.getSelectedItem(),
-            cboBulan.getSelectedIndex() + 1,
-            new ControllerKaryawan.KPIListener() {
-                @Override public void onSuccess(String p) {}
-                @Override public void onError(String p) {
-                    JOptionPane.showMessageDialog(EditData.this, p, "Error", JOptionPane.ERROR_MESSAGE);
-                }
-                @Override public void onDataLoaded(List<ModelKPI> data) {
-                    isiTabel(data);
-                }
+                (Integer) cboPeriode.getSelectedItem(),
+                cboBulan.getSelectedIndex() + 1,
+                new ControllerKaryawan.KPIListener() {
+            @Override
+            public void onSuccess(String p) {
             }
+
+            @Override
+            public void onError(String p) {
+                JOptionPane.showMessageDialog(EditData.this, p, "Error", JOptionPane.ERROR_MESSAGE);
+            }
+
+            @Override
+            public void onDataLoaded(List<ModelKPI> data) {
+                isiTabel(data);
+            }
+        }
         );
     }
 
@@ -391,10 +498,12 @@ public class EditData extends JPanel {
 
     private void loadKPIKeForm() {
         int row = tabelKPI.getSelectedRow();
-        if (row < 0) return;
+        if (row < 0) {
+            return;
+        }
         JOptionPane.showMessageDialog(this,
-            "Klik kanan tabel → Edit, atau gunakan tombol Hapus untuk menghapus baris ini.",
-            "Info", JOptionPane.INFORMATION_MESSAGE);
+                "Klik kanan tabel → Edit, atau gunakan tombol Hapus untuk menghapus baris ini.",
+                "Info", JOptionPane.INFORMATION_MESSAGE);
     }
 
     private void updateHasilKPI() {
@@ -441,36 +550,54 @@ public class EditData extends JPanel {
         kpi.setTanggalPenilaian(new Date());
 
         controller.simpanKPIAsync(kpi, new ControllerKaryawan.KPIListener() {
-            @Override public void onSuccess(String p) {
+            @Override
+            public void onSuccess(String p) {
                 JOptionPane.showMessageDialog(EditData.this, p, "Berhasil", JOptionPane.INFORMATION_MESSAGE);
                 loadRiwayatKPI(selectedKaryawanId);
                 resetForm();
             }
-            @Override public void onError(String p) {
+
+            @Override
+            public void onError(String p) {
                 JOptionPane.showMessageDialog(EditData.this, p, "Error", JOptionPane.ERROR_MESSAGE);
             }
-            @Override public void onDataLoaded(List<ModelKPI> d) {}
+
+            @Override
+            public void onDataLoaded(List<ModelKPI> d) {
+            }
         });
     }
 
     private void hapusKPI() {
         int row = tabelKPI.getSelectedRow();
-        if (row < 0) { JOptionPane.showMessageDialog(this, "Pilih KPI di tabel untuk dihapus!"); return; }
+        if (row < 0) {
+            JOptionPane.showMessageDialog(this, "Pilih KPI di tabel untuk dihapus!");
+            return;
+        }
         int ok = JOptionPane.showConfirmDialog(this, "Yakin hapus penilaian KPI ini?",
-            "Konfirmasi", JOptionPane.YES_NO_OPTION);
-        if (ok != JOptionPane.YES_OPTION) return;
+                "Konfirmasi", JOptionPane.YES_NO_OPTION);
+        if (ok != JOptionPane.YES_OPTION) {
+            return;
+        }
         // Note: ideally pass real ID; for now notify user
         JOptionPane.showMessageDialog(this, "Hapus: Double-klik baris untuk melihat detail, lalu konfirmasi hapus.", "Info", JOptionPane.INFORMATION_MESSAGE);
     }
 
     private void resetForm() {
-        sliderProduktivitas.setValue(0); sliderKualitas.setValue(0);
-        sliderKehadiran.setValue(0); sliderTeamwork.setValue(0); sliderInovasi.setValue(0);
-        txtCatatan.setText(""); txtTarget.setText(""); txtPenilai.setText("");
+        sliderProduktivitas.setValue(0);
+        sliderKualitas.setValue(0);
+        sliderKehadiran.setValue(0);
+        sliderTeamwork.setValue(0);
+        sliderInovasi.setValue(0);
+        txtCatatan.setText("");
+        txtTarget.setText("");
+        txtPenilai.setText("");
         selectedKPIId = -1;
         btnHapus.setEnabled(false);
         updateHasilKPI();
     }
 
-    public void refreshKaryawan() { loadKaryawan(); }
+    public void refreshKaryawan() {
+        loadKaryawan();
+    }
 }

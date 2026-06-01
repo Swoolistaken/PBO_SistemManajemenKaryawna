@@ -1,11 +1,11 @@
 package controller;
 
-import model.karyawan.ModelAbsensi;
-import model.karyawan.DAOAbsensi;
-import model.karyawan.ModelKPI;
+import model.absensi.ModelAbsensi;
+import model.absensi.DAOAbsensi;
+import model.kpi.ModelKPI;
 import model.karyawan.ModelKaryawan;
-import model.karyawan.DAO;
-import model.karyawan.DAOKPI;
+import model.karyawan.DAOKaryawan;
+import model.kpi.DAOKPI;
 import model.karyawan.*;
 import java.sql.SQLException;
 import java.util.List;
@@ -16,7 +16,7 @@ import java.util.List;
  */
 public class ControllerKaryawan {
 
-    private final DAO daoKaryawan = new DAO();
+    private final DAOKaryawan daoKaryawan = new DAOKaryawan();
     private final DAOKPI daoKPI = new DAOKPI();
     private final DAOAbsensi daoAbsensi = new DAOAbsensi();
 
