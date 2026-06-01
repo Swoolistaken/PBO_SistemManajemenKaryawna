@@ -1,6 +1,6 @@
 package view.karyawan;
 
-import controller.ControllerKaryawan;
+import controller.*;
 import model.karyawan.*;
 
 import javax.swing.*;
@@ -15,7 +15,8 @@ import model.kpi.ModelKPI;
 
 public class EditData extends JPanel {
 
-    private final ControllerKaryawan controller;
+    private final ControllerKaryawan controllerKaryawan;
+    private final ControllerKPI controllerKPI;
 
     // Komponen form KPI
     private JComboBox<String> cboKaryawan;
@@ -42,8 +43,9 @@ public class EditData extends JPanel {
         "Juli", "Agustus", "September", "Oktober", "November", "Desember"
     };
 
-    public EditData(ControllerKaryawan controller) {
-        this.controller = controller;
+    public EditData(ControllerKaryawan controllerKaryawan, ControllerKPI controllerKPI) {
+        this.controllerKaryawan = controllerKaryawan;
+        this.controllerKPI = controllerKPI;
         initUI();
         loadKaryawan();
     }
@@ -414,7 +416,7 @@ public class EditData extends JPanel {
     // ===== Data operations =====
     private void loadKaryawan() {
         try {
-            daftarKaryawan = controller.getAllKaryawan();
+            daftarKaryawan = controllerKaryawan.getAllKaryawan();
             cboKaryawan.removeAllItems();
             cboKaryawan.addItem("-- Pilih Karyawan --");
             for (ModelKaryawan k : daftarKaryawan) {
@@ -439,7 +441,7 @@ public class EditData extends JPanel {
     }
 
     private void loadRiwayatKPI(int karyawanId) {
-        controller.loadKPIByKaryawanAsync(karyawanId, new ControllerKaryawan.KPIListener() {
+        controllerKPI.loadKPIByKaryawanAsync(karyawanId, new ControllerKPI.KPIListener() {
             @Override
             public void onSuccess(String p) {
             }
@@ -457,10 +459,10 @@ public class EditData extends JPanel {
     }
 
     private void loadSemuaKPI() {
-        controller.loadKPIByPeriodeAsync(
+        controllerKPI.loadKPIByPeriodeAsync(
                 (Integer) cboPeriode.getSelectedItem(),
                 cboBulan.getSelectedIndex() + 1,
-                new ControllerKaryawan.KPIListener() {
+                new ControllerKPI.KPIListener() {
             @Override
             public void onSuccess(String p) {
             }
@@ -549,7 +551,7 @@ public class EditData extends JPanel {
         kpi.setPenilai(txtPenilai.getText().trim());
         kpi.setTanggalPenilaian(new Date());
 
-        controller.simpanKPIAsync(kpi, new ControllerKaryawan.KPIListener() {
+        controllerKPI.simpanKPIAsync(kpi, new ControllerKPI.KPIListener() {
             @Override
             public void onSuccess(String p) {
                 JOptionPane.showMessageDialog(EditData.this, p, "Berhasil", JOptionPane.INFORMATION_MESSAGE);

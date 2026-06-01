@@ -1,4 +1,4 @@
-package model.karyawan;
+package model;
 
 import java.sql.SQLException;
 import java.util.List;

@@ -1,6 +1,6 @@
-package view.karyawan;
+package view.Absensi;
 
-import controller.ControllerKaryawan;
+import controller.*;
 import model.karyawan.*;
 
 import javax.swing.*;
@@ -19,7 +19,8 @@ import model.absensi.ModelAbsensi;
  */
 public class ViewAbsensi extends JPanel {
 
-    private final ControllerKaryawan controller;
+    private final ControllerKaryawan controllerKaryawan;
+    private final ControllerAbsensi controllerAbsensi;
     private List<ModelKaryawan> daftarKaryawan = new ArrayList<>();
 
     private JComboBox<String> cboKaryawan;
@@ -32,8 +33,9 @@ public class ViewAbsensi extends JPanel {
     private DefaultTableModel modelTabel;
     private JLabel lblInfo;
 
-    public ViewAbsensi(ControllerKaryawan controller) {
-        this.controller = controller;
+    public ViewAbsensi(ControllerKaryawan controllerKaryawan, ControllerAbsensi controllerAbsensi) {
+        this.controllerKaryawan = controllerKaryawan;
+        this.controllerAbsensi = controllerAbsensi;
         initUI();
         loadKaryawan();
         loadAbsensi();
@@ -290,7 +292,7 @@ public class ViewAbsensi extends JPanel {
 
     private void loadKaryawan() {
         try {
-            daftarKaryawan = controller.getAllKaryawan();
+            daftarKaryawan = controllerKaryawan.getAllKaryawan();
             cboKaryawan.removeAllItems();
             cboKaryawan.addItem("-- Pilih Karyawan --");
             for (ModelKaryawan k : daftarKaryawan) {
@@ -302,7 +304,7 @@ public class ViewAbsensi extends JPanel {
     }
 
     private void loadAbsensi() {
-        controller.loadAbsensiAsync(new ControllerKaryawan.AbsensiListener() {
+        controllerAbsensi.loadAbsensiAsync(new ControllerAbsensi.AbsensiListener() {
             @Override
             public void onSuccess(String p) {
             }
@@ -361,7 +363,7 @@ public class ViewAbsensi extends JPanel {
         a.setMenitTerlambat((Integer) spnMenitTerlambat.getValue());
         a.setPulangAwal(chkPulangAwal.isSelected());
 
-        controller.simpanAbsensiAsync(a, new ControllerKaryawan.AbsensiListener() {
+        controllerAbsensi.simpanAbsensiAsync(a, new ControllerAbsensi.AbsensiListener() {
             @Override
             public void onSuccess(String p) {
                 JOptionPane.showMessageDialog(ViewAbsensi.this, p, "Berhasil", JOptionPane.INFORMATION_MESSAGE);

@@ -55,7 +55,7 @@ public class ModelKaryawan extends Karyawan {
         double total = hitungGajiPokok() + hitungTunjangan();
         // Bonus berdasarkan level jabatan
         if (levelJabatan >= 3) {
-            total += gajiPokok * 0.1; // 10% bonus untuk Manager ke atas
+            total += gajiPokok * 0.1;
         }
         return total;
     }

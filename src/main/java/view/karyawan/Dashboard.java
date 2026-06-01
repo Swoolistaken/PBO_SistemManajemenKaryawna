@@ -1,6 +1,6 @@
 package view.karyawan;
 
-import controller.ControllerKaryawan;
+import controller.*;
 import model.karyawan.ModelKaryawan;
 
 import javax.swing.*;
@@ -14,13 +14,15 @@ import java.util.List;
  */
 public class Dashboard extends JPanel {
 
-    private final ControllerKaryawan controller;
+    private final ControllerKaryawan controllerKaryawan;
+    private final ControllerKPI controllerKPI;
     private JLabel lblTotalKaryawan, lblTotalKPI, lblKaryawanAktif, lblDeptTerbanyak;
     private JPanel panelGrafikDept;
     private Timer refreshTimer;
 
-    public Dashboard(ControllerKaryawan controller) {
-        this.controller = controller;
+    public Dashboard(ControllerKaryawan controllerKaryawan, ControllerKPI controllerKPI) {
+        this.controllerKaryawan = controllerKaryawan;
+        this.controllerKPI = controllerKPI;
         initUI();
         loadStatistik();
         // Auto refresh setiap 30 detik (MultiThread via Timer)
@@ -258,10 +260,10 @@ public class Dashboard extends JPanel {
     public void loadStatistik() {
         new Thread(() -> {
             try {
-                int total = controller.getTotalKaryawan();
-                int totalKPI = controller.getTotalKPI();
-                List<ModelKaryawan> aktif = controller.getKaryawanAktif();
-                List<ModelKaryawan> semua = controller.getAllKaryawan();
+                int total = controllerKaryawan.getTotalKaryawan();
+                int totalKPI = controllerKPI.getTotalKPI();
+                List<ModelKaryawan> aktif = controllerKaryawan.getKaryawanAktif();
+                List<ModelKaryawan> semua = controllerKaryawan.getAllKaryawan();
 
                 // Hitung per dept
                 java.util.Map<String, Integer> countDept = new java.util.LinkedHashMap<>();

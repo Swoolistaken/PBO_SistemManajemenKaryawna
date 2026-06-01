@@ -4,7 +4,7 @@ import model.Connector;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
-import model.karyawan.InterfaceDAO;
+import model.InterfaceDAO;
 
 public class DAOAbsensi implements InterfaceDAO<ModelAbsensi> {
 

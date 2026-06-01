@@ -1,5 +1,6 @@
 package model.karyawan;
 
+import model.InterfaceDAO;
 import model.Connector;
 import java.sql.*;
 import java.util.ArrayList;
