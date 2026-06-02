@@ -23,7 +23,7 @@ public abstract class ModelUser {
         this.aktif = true;
     }
 
-    // ===== Abstract methods =====
+    // Abstract method
     public abstract boolean bisaEdit();
 
     public abstract boolean bisaHapus();
@@ -36,7 +36,7 @@ public abstract class ModelUser {
 
     public abstract String getRoleLabel();
 
-    // ===== Getters & Setters =====
+    // Getters & Setters 
     public int getId() {
         return id;
     }

@@ -44,7 +44,7 @@ public class ModelKPI {
     private Date tanggalPenilaian;
     private String penilai;
 
-    // ===== Constructor =====
+
     public ModelKPI() {
         this.tanggalPenilaian = new Date();
     }
