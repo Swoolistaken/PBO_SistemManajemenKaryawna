@@ -4,16 +4,12 @@ import controller.ControllerKaryawan;
 import model.karyawan.ModelKaryawan;
 
 import javax.swing.*;
-import javax.swing.border.*;
 import java.awt.*;
 import java.awt.event.*;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.List;
 
-/**
- * Form input/edit data karyawan Implementasi: GUI SWING, EXCEPTION HANDLING
- */
 public class InputData extends JDialog {
 
     private final ControllerKaryawan controller;
@@ -21,25 +17,24 @@ public class InputData extends JDialog {
     private boolean isEdit = false;
     private boolean saved = false;
 
-    // Form fields
-    private JTextField txtNik, txtNama, txtEmail, txtNoTelp, txtAlamat;
-    private JTextField txtTanggalLahir, txtTanggalMasuk;
+    private JTextField txtNik, txtNama, txtEmail, txtNoTelp;
+    private JTextField txtAlamat, txtTanggalLahir, txtTanggalMasuk;
     private JComboBox<String> cboJenisKelamin, cboJabatan, cboDepartemen;
     private JComboBox<String> cboLevelJabatan, cboPendidikan, cboStatus;
     private JTextField txtGajiPokok, txtTunjangTransport, txtTunjangMakan, txtTunjangKesehatan;
     private JTextArea txtKeahlian;
     private JLabel lblTotalGaji;
-    private JButton btnSimpan, btnBatal, btnHitung;
+    private JButton btnSimpan, btnBatal;
 
     public InputData(Frame parent, ControllerKaryawan controller) {
-        super(parent, "Tambah Karyawan Baru", true);
+        super(parent, "Tambah Karyawan", true);
         this.controller = controller;
         this.karyawan = new ModelKaryawan();
         initUI();
     }
 
     public InputData(Frame parent, ControllerKaryawan controller, ModelKaryawan k) {
-        super(parent, "Edit Data Karyawan", true);
+        super(parent, "Edit Karyawan", true);
         this.controller = controller;
         this.karyawan = k;
         this.isEdit = true;
@@ -48,189 +43,134 @@ public class InputData extends JDialog {
     }
 
     private void initUI() {
-        setSize(720, 700);
+        setSize(600, 620);
         setLocationRelativeTo(getParent());
         setResizable(false);
-        setLayout(new BorderLayout());
-        getContentPane().setBackground(new Color(30, 33, 43));
+        setLayout(new BorderLayout(5, 5));
 
-        add(buatPanelHeader(), BorderLayout.NORTH);
-        add(buatPanelForm(), BorderLayout.CENTER);
-        add(buatPanelTombol(), BorderLayout.SOUTH);
+        add(buatForm(), BorderLayout.CENTER);
+        add(buatTombol(), BorderLayout.SOUTH);
     }
 
-    private JPanel buatPanelHeader() {
-        JPanel p = new JPanel(new BorderLayout());
-        p.setBackground(new Color(35, 50, 100));
-        p.setBorder(new EmptyBorder(15, 20, 15, 20));
-        JLabel lbl = new JLabel(isEdit ? "✎ Edit Data Karyawan" : "➕ Tambah Karyawan Baru");
-        lbl.setFont(new Font("Segoe UI", Font.BOLD, 18));
-        lbl.setForeground(Color.WHITE);
-        p.add(lbl, BorderLayout.WEST);
-        return p;
-    }
+    private JScrollPane buatForm() {
+        JPanel form = new JPanel(new GridBagLayout());
+        form.setBorder(BorderFactory.createEmptyBorder(10, 15, 10, 15));
+        GridBagConstraints gbc = new GridBagConstraints();
+        gbc.insets = new Insets(4, 5, 4, 5);
+        gbc.fill = GridBagConstraints.HORIZONTAL;
+        gbc.weightx = 1.0;
 
-    private JScrollPane buatPanelForm() {
-        JPanel form = new JPanel();
-        form.setLayout(new BoxLayout(form, BoxLayout.Y_AXIS));
-        form.setBackground(new Color(30, 33, 43));
-        form.setBorder(new EmptyBorder(15, 25, 10, 25));
+        int row = 0;
 
-        // === Seksi Data Pribadi ===
-        form.add(buatSeksi("👤 Data Pribadi"));
-        JPanel gridPribadi = buatGrid();
-        txtNik = addField(gridPribadi, "NIK *", new JTextField());
-        txtNama = addField(gridPribadi, "Nama Lengkap *", new JTextField());
-        txtEmail = addField(gridPribadi, "Email", new JTextField());
-        txtNoTelp = addField(gridPribadi, "No. Telepon", new JTextField());
-        cboJenisKelamin = addCombo(gridPribadi, "Jenis Kelamin", new String[]{"Laki-laki", "Perempuan"});
-        txtTanggalLahir = addField(gridPribadi, "Tanggal Lahir (dd/MM/yyyy)", new JTextField());
-        form.add(gridPribadi);
+        // === Data Pribadi ===
+        gbc.gridx = 0;
+        gbc.gridy = row;
+        gbc.gridwidth = 2;
+        form.add(buatSeparator("Data Pribadi"), gbc);
+        gbc.gridwidth = 1;
 
-        form.add(Box.createVerticalStrut(8));
-        form.add(buatSeksi("📋 Data Pekerjaan"));
-        JPanel gridKerja = buatGrid();
-        cboJabatan = addCombo(gridKerja, "Jabatan *", new String[]{
+        txtNik = new JTextField();
+        txtNama = new JTextField();
+        txtEmail = new JTextField();
+        txtNoTelp = new JTextField();
+        txtAlamat = new JTextField();
+        txtTanggalLahir = new JTextField();
+        cboJenisKelamin = new JComboBox<>(new String[]{"Laki-laki", "Perempuan"});
+
+        row = addRow(form, gbc, ++row, "NIK *", txtNik);
+        row = addRow(form, gbc, ++row, "Nama Lengkap *", txtNama);
+        row = addRow(form, gbc, ++row, "Email", txtEmail);
+        row = addRow(form, gbc, ++row, "No. Telepon", txtNoTelp);
+        row = addRow(form, gbc, ++row, "Alamat", txtAlamat);
+        row = addRow(form, gbc, ++row, "Tgl. Lahir (dd/MM/yyyy)", txtTanggalLahir);
+        row = addRow(form, gbc, ++row, "Jenis Kelamin", cboJenisKelamin);
+
+        // === Data Pekerjaan ===
+        gbc.gridx = 0;
+        gbc.gridy = ++row;
+        gbc.gridwidth = 2;
+        form.add(buatSeparator("Data Pekerjaan"), gbc);
+        gbc.gridwidth = 1;
+
+        cboJabatan = new JComboBox<>(new String[]{
             "Staff IT", "Programmer", "System Analyst", "Network Engineer", "DBA",
             "Staff HRD", "Recruitment Officer", "Training Officer",
             "Staff Finance", "Akuntan", "Kasir",
             "Staff Marketing", "Sales Executive", "Brand Manager",
             "Staff Operasional", "Supervisor", "Manager", "Senior Manager", "Director"
         });
-        cboDepartemen = addCombo(gridKerja, "Departemen *", new String[]{
+        cboDepartemen = new JComboBox<>(new String[]{
             "IT", "HRD", "Finance", "Marketing", "Operations", "Legal", "Procurement", "R&D"
         });
-        cboLevelJabatan = addCombo(gridKerja, "Level *", new String[]{
+        cboLevelJabatan = new JComboBox<>(new String[]{
             "1 - Staff", "2 - Supervisor", "3 - Manager", "4 - Director"
         });
-        cboLevelJabatan.addActionListener(e -> hitungTunjangan());
-        cboPendidikan = addCombo(gridKerja, "Pendidikan", new String[]{
-            "SMA/SMK", "D3", "S1", "S2", "S3"
-        });
-        txtTanggalMasuk = addField(gridKerja, "Tanggal Masuk", new JTextField());
-        cboStatus = addCombo(gridKerja, "Status", new String[]{"AKTIF", "NONAKTIF", "CUTI"});
-        form.add(gridKerja);
+        cboPendidikan = new JComboBox<>(new String[]{"SMA/SMK", "D3", "S1", "S2", "S3"});
+        cboStatus = new JComboBox<>(new String[]{"AKTIF", "NONAKTIF", "CUTI"});
+        txtTanggalMasuk = new JTextField();
 
-        form.add(Box.createVerticalStrut(8));
-        form.add(buatSeksi("💰 Data Penggajian"));
-        JPanel gridGaji = buatGrid();
-        txtGajiPokok = addField(gridGaji, "Gaji Pokok (Rp) *", new JTextField("0"));
-        txtTunjangTransport = addField(gridGaji, "Tunjangan Transport", new JTextField("0"));
-        txtTunjangMakan = addField(gridGaji, "Tunjangan Makan", new JTextField("0"));
-        txtTunjangKesehatan = addField(gridGaji, "Tunjangan Kesehatan", new JTextField("0"));
-        form.add(gridGaji);
+        cboLevelJabatan.addActionListener(e -> hitungTunjangan());
+
+        row = addRow(form, gbc, ++row, "Jabatan *", cboJabatan);
+        row = addRow(form, gbc, ++row, "Departemen *", cboDepartemen);
+        row = addRow(form, gbc, ++row, "Level *", cboLevelJabatan);
+        row = addRow(form, gbc, ++row, "Pendidikan", cboPendidikan);
+        row = addRow(form, gbc, ++row, "Tgl. Masuk (dd/MM/yyyy)", txtTanggalMasuk);
+        row = addRow(form, gbc, ++row, "Status", cboStatus);
+
+        // === Penggajian ===
+        gbc.gridx = 0;
+        gbc.gridy = ++row;
+        gbc.gridwidth = 2;
+        form.add(buatSeparator("Penggajian"), gbc);
+        gbc.gridwidth = 1;
+
+        txtGajiPokok = new JTextField("0");
+        txtTunjangTransport = new JTextField("0");
+        txtTunjangMakan = new JTextField("0");
+        txtTunjangKesehatan = new JTextField("0");
+
+        row = addRow(form, gbc, ++row, "Gaji Pokok (Rp) *", txtGajiPokok);
+        row = addRow(form, gbc, ++row, "Tunjangan Transport", txtTunjangTransport);
+        row = addRow(form, gbc, ++row, "Tunjangan Makan", txtTunjangMakan);
+        row = addRow(form, gbc, ++row, "Tunjangan Kesehatan", txtTunjangKesehatan);
 
         // Total gaji
-        JPanel panelTotal = new JPanel(new FlowLayout(FlowLayout.LEFT, 10, 5));
-        panelTotal.setBackground(new Color(28, 45, 75));
-        panelTotal.setBorder(new LineBorder(new Color(55, 70, 110)));
-        btnHitung = new JButton("Hitung Total");
-        btnHitung.setFont(new Font("Segoe UI", Font.BOLD, 12));
-        btnHitung.setBackground(new Color(70, 130, 200));
-        btnHitung.setForeground(Color.WHITE);
-        btnHitung.setFocusPainted(false);
-        btnHitung.setOpaque(true);
-        btnHitung.setContentAreaFilled(true);
-        btnHitung.setBorder(new EmptyBorder(6, 12, 6, 12));
-        btnHitung.setCursor(new Cursor(Cursor.HAND_CURSOR));
-        btnHitung.addMouseListener(new MouseAdapter() {
-            @Override
-            public void mouseEntered(MouseEvent e) {
-                btnHitung.setBackground(new Color(50, 105, 170));
-            }
-
-            @Override
-            public void mouseExited(MouseEvent e) {
-                btnHitung.setBackground(new Color(70, 130, 200));
-            }
-        });
+        gbc.gridx = 0;
+        gbc.gridy = ++row;
+        gbc.gridwidth = 2;
+        JPanel panelTotal = new JPanel(new FlowLayout(FlowLayout.LEFT));
+        JButton btnHitung = new JButton("Hitung Total");
         btnHitung.addActionListener(e -> hitungTotal());
-        lblTotalGaji = new JLabel("Total Gaji: Rp 0");
-        lblTotalGaji.setFont(new Font("Segoe UI", Font.BOLD, 14));
-        lblTotalGaji.setForeground(new Color(80, 220, 100));
+        lblTotalGaji = new JLabel("Total: Rp 0");
+        lblTotalGaji.setFont(new Font("Dialog", Font.BOLD, 13));
         panelTotal.add(btnHitung);
         panelTotal.add(lblTotalGaji);
-        form.add(panelTotal);
+        form.add(panelTotal, gbc);
+        gbc.gridwidth = 1;
 
-        form.add(Box.createVerticalStrut(8));
-        form.add(buatSeksi("📝 Informasi Tambahan"));
+        // Keahlian
+        gbc.gridx = 0;
+        gbc.gridy = ++row;
+        gbc.gridwidth = 2;
+        form.add(buatSeparator("Informasi Tambahan"), gbc);
+        gbc.gridwidth = 1;
 
-        JPanel panelAlamat = new JPanel(new BorderLayout(8, 0));
-        panelAlamat.setMaximumSize(new Dimension(Integer.MAX_VALUE, 70));
-        panelAlamat.setBackground(new Color(30, 33, 43));
-        JLabel lblAlamat = new JLabel("Alamat:");
-        lblAlamat.setPreferredSize(new Dimension(160, 20));
-        txtAlamat = new JTextField();
-        panelAlamat.add(lblAlamat, BorderLayout.WEST);
-        panelAlamat.add(txtAlamat, BorderLayout.CENTER);
-        form.add(panelAlamat);
-        form.add(Box.createVerticalStrut(6));
-
-        JPanel panelKeahlian = new JPanel(new BorderLayout(8, 0));
-        panelKeahlian.setMaximumSize(new Dimension(Integer.MAX_VALUE, 80));
-        panelKeahlian.setBackground(new Color(30, 33, 43));
-        JLabel lblKeahlian = new JLabel("Keahlian:");
-        lblKeahlian.setPreferredSize(new Dimension(160, 20));
         txtKeahlian = new JTextArea(3, 20);
-        txtKeahlian.setFont(new Font("Segoe UI", Font.PLAIN, 13));
         txtKeahlian.setLineWrap(true);
-        panelKeahlian.add(lblKeahlian, BorderLayout.WEST);
-        panelKeahlian.add(new JScrollPane(txtKeahlian), BorderLayout.CENTER);
-        form.add(panelKeahlian);
+        row = addRow(form, gbc, ++row, "Keahlian", new JScrollPane(txtKeahlian));
 
         JScrollPane scroll = new JScrollPane(form);
-        scroll.setBorder(null);
-        scroll.getVerticalScrollBar().setUnitIncrement(16);
+        scroll.getVerticalScrollBar().setUnitIncrement(12);
         return scroll;
     }
 
-    private JPanel buatPanelTombol() {
-        JPanel p = new JPanel(new FlowLayout(FlowLayout.RIGHT, 10, 12));
-        p.setBackground(new Color(22, 25, 35));
-        p.setBorder(new MatteBorder(1, 0, 0, 0, new Color(55, 65, 90)));
-
+    private JPanel buatTombol() {
+        JPanel p = new JPanel(new FlowLayout(FlowLayout.RIGHT));
         btnBatal = new JButton("Batal");
-        btnBatal.setFont(new Font("Segoe UI", Font.BOLD, 13));
-        btnBatal.setBackground(new Color(130, 130, 150));
-        btnBatal.setForeground(Color.WHITE);
-        btnBatal.setFocusPainted(false);
-        btnBatal.setOpaque(true);
-        btnBatal.setContentAreaFilled(true);
-        btnBatal.setPreferredSize(new Dimension(100, 34));
-        btnBatal.setCursor(new Cursor(Cursor.HAND_CURSOR));
-        btnBatal.addMouseListener(new MouseAdapter() {
-            @Override
-            public void mouseEntered(MouseEvent e) {
-                btnBatal.setBackground(new Color(100, 100, 120));
-            }
-
-            @Override
-            public void mouseExited(MouseEvent e) {
-                btnBatal.setBackground(new Color(130, 130, 150));
-            }
-        });
-        btnBatal.addActionListener(e -> dispose());
-
         btnSimpan = new JButton(isEdit ? "Update" : "Simpan");
-        btnSimpan.setFont(new Font("Segoe UI", Font.BOLD, 13));
-        btnSimpan.setBackground(new Color(34, 139, 34));
-        btnSimpan.setForeground(Color.WHITE);
-        btnSimpan.setFocusPainted(false);
-        btnSimpan.setOpaque(true);
-        btnSimpan.setContentAreaFilled(true);
-        btnSimpan.setPreferredSize(new Dimension(120, 34));
-        btnSimpan.setCursor(new Cursor(Cursor.HAND_CURSOR));
-        btnSimpan.addMouseListener(new MouseAdapter() {
-            @Override
-            public void mouseEntered(MouseEvent e) {
-                btnSimpan.setBackground(new Color(20, 110, 20));
-            }
 
-            @Override
-            public void mouseExited(MouseEvent e) {
-                btnSimpan.setBackground(new Color(34, 139, 34));
-            }
-        });
+        btnBatal.addActionListener(e -> dispose());
         btnSimpan.addActionListener(e -> simpanData());
 
         p.add(btnBatal);
@@ -238,44 +178,22 @@ public class InputData extends JDialog {
         return p;
     }
 
-    // ===== Helper UI =====
-    private JPanel buatGrid() {
-        JPanel p = new JPanel(new GridLayout(0, 2, 10, 8));
-        p.setBackground(new Color(30, 33, 43));
-        p.setAlignmentX(Component.LEFT_ALIGNMENT);
-        p.setMaximumSize(new Dimension(Integer.MAX_VALUE, Integer.MAX_VALUE));
-        return p;
+    // ===== Helper =====
+    private int addRow(JPanel form, GridBagConstraints gbc, int row, String label, JComponent comp) {
+        gbc.gridx = 0;
+        gbc.gridy = row;
+        gbc.weightx = 0;
+        form.add(new JLabel(label + ":"), gbc);
+        gbc.gridx = 1;
+        gbc.weightx = 1.0;
+        form.add(comp, gbc);
+        return row;
     }
 
-    private JLabel buatSeksi(String judul) {
-        JLabel lbl = new JLabel(judul);
-        lbl.setFont(new Font("Segoe UI", Font.BOLD, 13));
-        lbl.setForeground(new Color(160, 185, 255));
-        lbl.setBorder(new MatteBorder(0, 0, 1, 0, new Color(55, 70, 110)));
-        lbl.setAlignmentX(Component.LEFT_ALIGNMENT);
-        lbl.setMaximumSize(new Dimension(Integer.MAX_VALUE, 30));
+    private JLabel buatSeparator(String teks) {
+        JLabel lbl = new JLabel(teks);
+        lbl.setFont(new Font("Dialog", Font.BOLD, 12));
         return lbl;
-    }
-
-    private <T extends JTextField> T addField(JPanel panel, String label, T field) {
-        JLabel lbl = new JLabel(label + ":");
-        lbl.setFont(new Font("Segoe UI", Font.PLAIN, 13));
-        field.setFont(new Font("Segoe UI", Font.PLAIN, 13));
-        field.setPreferredSize(new Dimension(0, 30));
-        panel.add(lbl);
-        panel.add(field);
-        return field;
-    }
-
-    private JComboBox<String> addCombo(JPanel panel, String label, String[] items) {
-        JLabel lbl = new JLabel(label + ":");
-        lbl.setFont(new Font("Segoe UI", Font.PLAIN, 13));
-        JComboBox<String> cbo = new JComboBox<>(items);
-        cbo.setFont(new Font("Segoe UI", Font.PLAIN, 13));
-        cbo.setPreferredSize(new Dimension(0, 30));
-        panel.add(lbl);
-        panel.add(cbo);
-        return cbo;
     }
 
     private void hitungTunjangan() {
@@ -306,23 +224,16 @@ public class InputData extends JDialog {
 
     private void hitungTotal() {
         try {
-            double gp = parseDouble(txtGajiPokok.getText());
-            double tt = parseDouble(txtTunjangTransport.getText());
-            double tm = parseDouble(txtTunjangMakan.getText());
-            double tk = parseDouble(txtTunjangKesehatan.getText());
-            double total = gp + tt + tm + tk;
-            java.text.NumberFormat nf = java.text.NumberFormat.getInstance(new java.util.Locale("id", "ID"));
-            lblTotalGaji.setText("Total Gaji: Rp " + nf.format(total));
+            double total = Double.parseDouble(txtGajiPokok.getText().trim())
+                    + Double.parseDouble(txtTunjangTransport.getText().trim())
+                    + Double.parseDouble(txtTunjangMakan.getText().trim())
+                    + Double.parseDouble(txtTunjangKesehatan.getText().trim());
+            lblTotalGaji.setText(String.format("Total: Rp %,.0f", total));
         } catch (NumberFormatException e) {
-            lblTotalGaji.setText("Total Gaji: (format angka salah)");
+            lblTotalGaji.setText("Total: (format angka salah)");
         }
     }
 
-    private double parseDouble(String s) {
-        return Double.parseDouble(s.trim().replace(",", "").replace(".", "").isEmpty() ? "0" : s.trim().replace(",", ""));
-    }
-
-    // ===== Isi form saat edit =====
     private void isiForm(ModelKaryawan k) {
         txtNik.setText(k.getNik());
         txtNama.setText(k.getNama());
@@ -330,7 +241,6 @@ public class InputData extends JDialog {
         txtNoTelp.setText(k.getNoTelp() != null ? k.getNoTelp() : "");
         txtAlamat.setText(k.getAlamat() != null ? k.getAlamat() : "");
         cboJenisKelamin.setSelectedItem(k.getJenisKelamin());
-
         SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
         if (k.getTanggalLahir() != null) {
             txtTanggalLahir.setText(sdf.format(k.getTanggalLahir()));
@@ -338,7 +248,6 @@ public class InputData extends JDialog {
         if (k.getTanggalMasuk() != null) {
             txtTanggalMasuk.setText(sdf.format(k.getTanggalMasuk()));
         }
-
         cboJabatan.setSelectedItem(k.getJabatan());
         cboDepartemen.setSelectedItem(k.getDepartemen());
         cboLevelJabatan.setSelectedIndex(Math.max(0, k.getLevelJabatan() - 1));
@@ -354,10 +263,8 @@ public class InputData extends JDialog {
         hitungTotal();
     }
 
-    // ===== Simpan data =====
     private void simpanData() {
         try {
-            // Kumpulkan data dari form
             karyawan.setNik(txtNik.getText().trim());
             karyawan.setNama(txtNama.getText().trim());
             karyawan.setEmail(txtEmail.getText().trim());
@@ -367,14 +274,14 @@ public class InputData extends JDialog {
 
             SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
             try {
-                if (!txtTanggalLahir.getText().isEmpty()) {
-                    karyawan.setTanggalLahir(sdf.parse(txtTanggalLahir.getText()));
+                if (!txtTanggalLahir.getText().trim().isEmpty()) {
+                    karyawan.setTanggalLahir(sdf.parse(txtTanggalLahir.getText().trim()));
                 }
-                if (!txtTanggalMasuk.getText().isEmpty()) {
-                    karyawan.setTanggalMasuk(sdf.parse(txtTanggalMasuk.getText()));
+                if (!txtTanggalMasuk.getText().trim().isEmpty()) {
+                    karyawan.setTanggalMasuk(sdf.parse(txtTanggalMasuk.getText().trim()));
                 }
             } catch (ParseException e) {
-                throw new IllegalArgumentException("Format tanggal harus dd/MM/yyyy. Contoh: 01/01/1990");
+                throw new IllegalArgumentException("Format tanggal harus dd/MM/yyyy");
             }
 
             karyawan.setJabatan((String) cboJabatan.getSelectedItem());
@@ -393,7 +300,6 @@ public class InputData extends JDialog {
                 throw new IllegalArgumentException("Nominal gaji/tunjangan harus berupa angka!");
             }
 
-            // Disable tombol saat proses
             btnSimpan.setEnabled(false);
             btnSimpan.setText("Menyimpan...");
 
@@ -401,7 +307,7 @@ public class InputData extends JDialog {
                 @Override
                 public void onSuccess(String p) {
                     saved = true;
-                    JOptionPane.showMessageDialog(InputData.this, p, "Berhasil", JOptionPane.INFORMATION_MESSAGE);
+                    JOptionPane.showMessageDialog(InputData.this, p);
                     dispose();
                 }
 

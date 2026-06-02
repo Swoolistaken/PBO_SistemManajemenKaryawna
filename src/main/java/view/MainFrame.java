@@ -4,38 +4,13 @@ import controller.ControllerAbsensi;
 import controller.ControllerAuth;
 import controller.ControllerKPI;
 import controller.ControllerKaryawan;
-import java.awt.BorderLayout;
-import java.awt.CardLayout;
-import java.awt.Color;
-import java.awt.Component;
-import java.awt.Cursor;
-import java.awt.Dimension;
-import java.awt.Font;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
-import java.awt.event.WindowAdapter;
-import java.awt.event.WindowEvent;
-import javax.swing.Box;
-import javax.swing.BoxLayout;
-import javax.swing.JButton;
-import javax.swing.JLabel;
-import javax.swing.JOptionPane;
-import javax.swing.JPanel;
-import javax.swing.JScrollPane;
-import javax.swing.JTextArea;
-import javax.swing.SwingConstants;
-import javax.swing.SwingUtilities;
-import javax.swing.UIManager;
-import static javax.swing.WindowConstants.EXIT_ON_CLOSE;
-import javax.swing.border.EmptyBorder;
+import java.awt.*;
+import java.awt.event.*;
+import javax.swing.*;
 import model.karyawan.ModelKaryawan;
 import model.user.ModelUser;
 import view.Absensi.ViewAbsensi;
-import view.karyawan.Dashboard;
-import view.karyawan.EditData;
-import view.karyawan.InputData;
-import view.karyawan.ViewData;
-import javax.swing.*;
+import view.karyawan.*;
 
 public class MainFrame extends JFrame {
 
@@ -53,37 +28,22 @@ public class MainFrame extends JFrame {
     private EditData editData;
     private ViewAbsensi viewAbsensi;
 
-    private JButton btnAktif;
-    private final Color BG_NAV = new Color(25, 45, 110);
-    private final Color BG_NAV_HOVER = new Color(45, 75, 160);
-    private final Color BG_NAV_AKTIF = new Color(70, 120, 220);
-
     public MainFrame(ModelUser user) {
         this.currentUser = user;
-        initLookAndFeel();
         initFrame();
         initPanels();
         initNav();
         tampilkan("DASHBOARD");
     }
 
-    private void initLookAndFeel() {
-        try {
-            UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
-            UIManager.put("Table.alternateRowColor", new Color(248, 250, 255));
-            UIManager.put("OptionPane.messageFont", new Font("Segoe UI", Font.PLAIN, 13));
-        } catch (Exception ignored) {
-        }
-    }
-
     private void initFrame() {
         setTitle("Sistem Manajemen Karyawan — "
                 + currentUser.getRoleLabel()
                 + " | " + currentUser.getNamaLengkap());
-        setSize(1200, 750);
+        setSize(1100, 700);
         setLocationRelativeTo(null);
         setDefaultCloseOperation(EXIT_ON_CLOSE);
-        setMinimumSize(new Dimension(900, 600));
+        setMinimumSize(new Dimension(800, 500));
         setLayout(new BorderLayout());
 
         addWindowListener(new WindowAdapter() {
@@ -150,7 +110,6 @@ public class MainFrame extends JFrame {
             }
         });
 
-        // Kontrol akses tombol di ViewData sesuai role
         viewData.setAksesHapus(currentUser.bisaHapus());
         viewData.setAksesTambah(currentUser.bisaTambahKaryawan());
 
@@ -169,118 +128,64 @@ public class MainFrame extends JFrame {
     private void initNav() {
         JPanel navPanel = new JPanel();
         navPanel.setLayout(new BoxLayout(navPanel, BoxLayout.Y_AXIS));
-        navPanel.setBackground(BG_NAV);
-        navPanel.setPreferredSize(new Dimension(210, 0));
+        navPanel.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
 
-        // Logo + info user
-        JPanel panelLogo = new JPanel(new BorderLayout());
-        panelLogo.setBackground(new Color(15, 30, 80));
-        panelLogo.setBorder(new EmptyBorder(15, 15, 15, 15));
-        panelLogo.setMaximumSize(new Dimension(Integer.MAX_VALUE, 90));
-        JLabel logo = new JLabel("<html><b style='font-size:14px'>🏢 EMS</b><br>"
-                + "<small style='color:#aabbdd'>" + currentUser.getNamaLengkap() + "</small><br>"
-                + "<small style='color:#8899cc'>" + currentUser.getRoleLabel() + "</small></html>");
-        logo.setForeground(Color.WHITE);
-        panelLogo.add(logo, BorderLayout.WEST);
-        navPanel.add(panelLogo);
+        // Info user
+        JLabel lblUser = new JLabel(currentUser.getNamaLengkap());
+        lblUser.setFont(new Font("Dialog", Font.BOLD, 12));
+        lblUser.setAlignmentX(Component.CENTER_ALIGNMENT);
+
+        JLabel lblRole = new JLabel(currentUser.getRoleLabel());
+        lblRole.setFont(new Font("Dialog", Font.PLAIN, 11));
+        lblRole.setAlignmentX(Component.CENTER_ALIGNMENT);
+
         navPanel.add(Box.createVerticalStrut(10));
+        navPanel.add(lblUser);
+        navPanel.add(lblRole);
+        navPanel.add(new JSeparator());
+        navPanel.add(Box.createVerticalStrut(5));
 
-        // Menu — tampilkan sesuai akses role
+        // Menu sesuai akses
         String akses = currentUser.getMenuAkses();
 
-        JButton btnDash = buatNavBtn("🏠  Dashboard", "DASHBOARD");
-        navPanel.add(btnDash);
-        btnAktif = btnDash;
-        setAktif(btnDash);
+        navPanel.add(buatNavBtn("Dashboard", "DASHBOARD"));
 
         if (akses.contains("KARYAWAN")) {
-            navPanel.add(buatNavBtn("👤  Data Karyawan", "KARYAWAN"));
+            navPanel.add(buatNavBtn("Data Karyawan", "KARYAWAN"));
         }
         if (akses.contains("KPI")) {
-            navPanel.add(buatNavBtn("📊  Penilaian KPI", "KPI"));
+            navPanel.add(buatNavBtn("Penilaian KPI", "KPI"));
         }
         if (akses.contains("ABSENSI")) {
-            navPanel.add(buatNavBtn("📋  Absensi", "ABSENSI"));
+            navPanel.add(buatNavBtn("Absensi", "ABSENSI"));
         }
         if (akses.contains("GAJI")) {
-            navPanel.add(buatNavBtn("💰  Penggajian", "GAJI"));
+            navPanel.add(buatNavBtn("Penggajian", "GAJI"));
         }
 
         navPanel.add(Box.createVerticalGlue());
+        navPanel.add(new JSeparator());
 
-        // Info versi
-        JLabel lblVersi = new JLabel("  v1.0 | PBO Project 2025");
-        lblVersi.setFont(new Font("Segoe UI", Font.ITALIC, 10));
-        lblVersi.setForeground(new Color(120, 140, 180));
-        lblVersi.setAlignmentX(Component.LEFT_ALIGNMENT);
-        navPanel.add(lblVersi);
-        navPanel.add(Box.createVerticalStrut(4));
-
-        // Tombol logout
-        JButton btnLogout = new JButton("🚪  Logout");
-        btnLogout.setFont(new Font("Segoe UI", Font.PLAIN, 13));
-        btnLogout.setForeground(new Color(255, 180, 180));
-        btnLogout.setBackground(new Color(100, 30, 30));
-        btnLogout.setOpaque(true);
-        btnLogout.setBorderPainted(false);
-        btnLogout.setFocusPainted(false);
-        btnLogout.setHorizontalAlignment(SwingConstants.LEFT);
-        btnLogout.setMaximumSize(new Dimension(Integer.MAX_VALUE, 46));
-        btnLogout.setBorder(new EmptyBorder(12, 20, 12, 20));
-        btnLogout.setCursor(new Cursor(Cursor.HAND_CURSOR));
-        btnLogout.addMouseListener(new MouseAdapter() {
-            @Override
-            public void mouseEntered(MouseEvent e) {
-                btnLogout.setBackground(new Color(140, 40, 40));
-            }
-
-            @Override
-            public void mouseExited(MouseEvent e) {
-                btnLogout.setBackground(new Color(100, 30, 30));
-            }
-        });
+        JButton btnLogout = new JButton("Logout");
+        btnLogout.setAlignmentX(Component.CENTER_ALIGNMENT);
+        btnLogout.setMaximumSize(new Dimension(Integer.MAX_VALUE, 30));
         btnLogout.addActionListener(e -> logout());
+        navPanel.add(Box.createVerticalStrut(5));
         navPanel.add(btnLogout);
-        navPanel.add(Box.createVerticalStrut(6));
+        navPanel.add(Box.createVerticalStrut(5));
 
-        add(navPanel, BorderLayout.WEST);
+        JScrollPane scrollNav = new JScrollPane(navPanel);
+        scrollNav.setPreferredSize(new Dimension(160, 0));
+        scrollNav.setBorder(BorderFactory.createMatteBorder(0, 0, 0, 1, Color.GRAY));
+        add(scrollNav, BorderLayout.WEST);
     }
 
     private JButton buatNavBtn(String teks, String panel) {
         JButton btn = new JButton(teks);
-        btn.setFont(new Font("Segoe UI", Font.PLAIN, 14));
-        btn.setForeground(new Color(200, 215, 245));
-        btn.setBackground(BG_NAV);
-        btn.setOpaque(true);
-        btn.setBorderPainted(false);
-        btn.setFocusPainted(false);
-        btn.setContentAreaFilled(true);
-        btn.setHorizontalAlignment(SwingConstants.LEFT);
-        btn.setMaximumSize(new Dimension(Integer.MAX_VALUE, 50));
-        btn.setCursor(new Cursor(Cursor.HAND_CURSOR));
-        btn.setBorder(new EmptyBorder(14, 20, 14, 20));
-
-        btn.addMouseListener(new MouseAdapter() {
-            @Override
-            public void mouseEntered(MouseEvent e) {
-                if (btn != btnAktif) {
-                    btn.setBackground(BG_NAV_HOVER);
-                    btn.setForeground(Color.WHITE);
-                }
-            }
-
-            @Override
-            public void mouseExited(MouseEvent e) {
-                if (btn != btnAktif) {
-                    btn.setBackground(BG_NAV);
-                    btn.setForeground(new Color(200, 215, 245));
-                }
-            }
-        });
-
+        btn.setMaximumSize(new Dimension(Integer.MAX_VALUE, 30));
+        btn.setAlignmentX(Component.CENTER_ALIGNMENT);
         btn.addActionListener(e -> {
             tampilkan(panel);
-            setAktif(btn);
             if ("KARYAWAN".equals(panel)) {
                 viewData.loadData();
             }
@@ -291,18 +196,7 @@ public class MainFrame extends JFrame {
                 viewAbsensi.refreshKaryawan();
             }
         });
-
         return btn;
-    }
-
-    private void setAktif(JButton btn) {
-        if (btnAktif != null) {
-            btnAktif.setBackground(BG_NAV);
-            btnAktif.setForeground(new Color(200, 215, 245));
-        }
-        btnAktif = btn;
-        btn.setBackground(BG_NAV_AKTIF);
-        btn.setForeground(Color.WHITE);
     }
 
     private void tampilkan(String nama) {
@@ -318,8 +212,7 @@ public class MainFrame extends JFrame {
 
     private void logout() {
         int ok = JOptionPane.showConfirmDialog(this,
-                "Yakin ingin logout?", "Logout",
-                JOptionPane.YES_NO_OPTION);
+                "Yakin ingin logout?", "Logout", JOptionPane.YES_NO_OPTION);
         if (ok != JOptionPane.YES_OPTION) {
             return;
         }
@@ -334,31 +227,19 @@ public class MainFrame extends JFrame {
 
     private JPanel buatPanelGaji() {
         JPanel p = new JPanel(new BorderLayout());
-        p.setBackground(new Color(245, 247, 251));
 
-        JLabel lbl = new JLabel("<html><center>💰 Modul Penggajian<br><small>Fitur kalkulasi slip gaji & export laporan<br>— Coming Soon —</small></center></html>");
-        lbl.setFont(new Font("Segoe UI", Font.PLAIN, 16));
-        lbl.setForeground(new Color(100, 110, 140));
-        lbl.setHorizontalAlignment(SwingConstants.CENTER);
+        JLabel lbl = new JLabel("Modul Penggajian", SwingConstants.CENTER);
+        lbl.setFont(new Font("Dialog", Font.BOLD, 16));
 
-        JButton btnKalkulasi = new JButton("🔢 Kalkulasi Gaji Bulan Ini");
-        btnKalkulasi.setFont(new Font("Segoe UI", Font.BOLD, 14));
-        btnKalkulasi.setBackground(new Color(34, 100, 180));
-        btnKalkulasi.setForeground(Color.WHITE);
-        btnKalkulasi.setOpaque(true);
-        btnKalkulasi.setBorderPainted(false);
-        btnKalkulasi.setFocusPainted(false);
-        btnKalkulasi.setPreferredSize(new Dimension(250, 40));
-        btnKalkulasi.setCursor(new Cursor(Cursor.HAND_CURSOR));
+        JButton btnKalkulasi = new JButton("Kalkulasi Gaji Bulan Ini");
         btnKalkulasi.addActionListener(e -> kalkulasiGaji());
 
-        JPanel center = new JPanel(new java.awt.GridBagLayout());
-        center.setBackground(new Color(245, 247, 251));
-        java.awt.GridBagConstraints gbc = new java.awt.GridBagConstraints();
+        JPanel center = new JPanel(new GridBagLayout());
+        GridBagConstraints gbc = new GridBagConstraints();
         gbc.gridy = 0;
         center.add(lbl, gbc);
         gbc.gridy = 1;
-        gbc.insets = new java.awt.Insets(20, 0, 0, 0);
+        gbc.insets = new Insets(15, 0, 0, 0);
         center.add(btnKalkulasi, gbc);
 
         p.add(center, BorderLayout.CENTER);
