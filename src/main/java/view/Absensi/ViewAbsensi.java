@@ -50,10 +50,13 @@ public class ViewAbsensi extends JPanel {
     private JScrollPane buatForm() {
         JPanel panel = new JPanel(new GridBagLayout());
         panel.setBorder(BorderFactory.createTitledBorder("Catat Absensi"));
+
         GridBagConstraints gbc = new GridBagConstraints();
         gbc.insets = new Insets(4, 5, 4, 5);
         gbc.fill = GridBagConstraints.HORIZONTAL;
         gbc.weightx = 1.0;
+        // ===== FIX POINT 4: anchor NORTH agar semua naik ke atas =====
+        gbc.anchor = GridBagConstraints.NORTH;
 
         int row = 0;
 
@@ -68,34 +71,74 @@ public class ViewAbsensi extends JPanel {
         txtJamKeluar = new JTextField("17:00");
         txtKeterangan = new JTextField();
 
+        // ===== FIX POINT 2: mutual exclusive checkbox =====
         chkTerlambat = new JCheckBox("Terlambat");
         chkPulangAwal = new JCheckBox("Pulang Lebih Awal");
+
+        chkTerlambat.addItemListener(e -> {
+            if (chkTerlambat.isSelected()) {
+                chkPulangAwal.setSelected(false);
+                spnMenit.setEnabled(true);
+            } else {
+                spnMenit.setEnabled(false);
+            }
+        });
+
+        chkPulangAwal.addItemListener(e -> {
+            if (chkPulangAwal.isSelected()) {
+                chkTerlambat.setSelected(false);
+                spnMenit.setEnabled(false);
+            }
+        });
+
+        // ===== FIX POINT 1: Spinner angka only, tidak bisa ketik teks =====
         spnMenit = new JSpinner(new SpinnerNumberModel(0, 0, 480, 5));
+        JSpinner.NumberEditor editor = new JSpinner.NumberEditor(spnMenit, "##0");
+        spnMenit.setEditor(editor);
+        // Block input non-angka
+        JFormattedTextField spnTextField = editor.getTextField();
+        spnTextField.addKeyListener(new KeyAdapter() {
+            @Override
+            public void keyTyped(KeyEvent e) {
+                char c = e.getKeyChar();
+                if (!Character.isDigit(c) && c != KeyEvent.VK_BACK_SPACE && c != KeyEvent.VK_DELETE) {
+                    e.consume(); // buang karakter bukan angka
+                }
+            }
+        });
+        spnMenit.setEnabled(false); // default disabled sampai chkTerlambat dicentang
 
         row = addRow(panel, gbc, row, "Karyawan *", cboKaryawan);
-        row = addRow(panel, gbc, ++row, "Tanggal", txtTanggal);
+        row = addRow(panel, gbc, ++row, "Tanggal (dd/MM/yyyy)", txtTanggal);
         row = addRow(panel, gbc, ++row, "Status", cboStatus);
-        row = addRow(panel, gbc, ++row, "Jam Masuk", txtJamMasuk);
-        row = addRow(panel, gbc, ++row, "Jam Keluar", txtJamKeluar);
+        row = addRow(panel, gbc, ++row, "Jam Masuk (HH:mm)", txtJamMasuk);
+        row = addRow(panel, gbc, ++row, "Jam Keluar (HH:mm)", txtJamKeluar);
         row = addRow(panel, gbc, ++row, "Keterangan", txtKeterangan);
         row = addRow(panel, gbc, ++row, "Menit Terlambat", spnMenit);
 
+        // Checkbox row
         gbc.gridx = 0;
         gbc.gridy = ++row;
         gbc.gridwidth = 2;
         JPanel panelCheck = new JPanel(new FlowLayout(FlowLayout.LEFT, 0, 0));
         panelCheck.add(chkTerlambat);
-        panelCheck.add(Box.createHorizontalStrut(10));
+        panelCheck.add(Box.createHorizontalStrut(15));
         panelCheck.add(chkPulangAwal);
         panel.add(panelCheck, gbc);
         gbc.gridwidth = 1;
 
+        // Tombol
         gbc.gridx = 0;
         gbc.gridy = ++row;
         gbc.gridwidth = 2;
         btnSimpan = new JButton("Catat Absensi");
         btnSimpan.addActionListener(e -> simpanAbsensi());
         panel.add(btnSimpan, gbc);
+
+        // ===== FIX POINT 4: panel filler agar semua naik ke atas =====
+        gbc.gridy = ++row;
+        gbc.weighty = 1.0; // dorong semua komponen ke atas
+        panel.add(new JLabel(), gbc);
 
         JScrollPane scroll = new JScrollPane(panel);
         scroll.getVerticalScrollBar().setUnitIncrement(12);
@@ -133,6 +176,7 @@ public class ViewAbsensi extends JPanel {
         gbc.gridx = 0;
         gbc.gridy = row;
         gbc.weightx = 0;
+        gbc.weighty = 0;
         panel.add(new JLabel(label + ":"), gbc);
         gbc.gridx = 1;
         gbc.weightx = 1.0;
@@ -193,18 +237,41 @@ public class ViewAbsensi extends JPanel {
             JOptionPane.showMessageDialog(this, "Pilih karyawan terlebih dahulu!");
             return;
         }
+
+        // ===== FIX POINT 3: validasi format jam HH:mm =====
+        String jamMasuk = txtJamMasuk.getText().trim();
+        String jamKeluar = txtJamKeluar.getText().trim();
+
+        if (!jamMasuk.matches("^([01]\\d|2[0-3]):[0-5]\\d$")) {
+            JOptionPane.showMessageDialog(this,
+                    "Format jam masuk tidak valid!\nGunakan format HH:mm, contoh: 08:00",
+                    "Validasi", JOptionPane.WARNING_MESSAGE);
+            txtJamMasuk.requestFocus();
+            return;
+        }
+        if (!jamKeluar.matches("^([01]\\d|2[0-3]):[0-5]\\d$")) {
+            JOptionPane.showMessageDialog(this,
+                    "Format jam keluar tidak valid!\nGunakan format HH:mm, contoh: 17:00",
+                    "Validasi", JOptionPane.WARNING_MESSAGE);
+            txtJamKeluar.requestFocus();
+            return;
+        }
+
         ModelKaryawan k = daftarKaryawan.get(idx);
         ModelAbsensi a = new ModelAbsensi(k.getId(), k.getNik(), k.getNama());
 
         try {
             a.setTanggal(new SimpleDateFormat("dd/MM/yyyy").parse(txtTanggal.getText().trim()));
         } catch (Exception e) {
-            JOptionPane.showMessageDialog(this, "Format tanggal: dd/MM/yyyy", "Error", JOptionPane.ERROR_MESSAGE);
+            JOptionPane.showMessageDialog(this,
+                    "Format tanggal tidak valid!\nGunakan format dd/MM/yyyy, contoh: 01/01/2025",
+                    "Validasi", JOptionPane.WARNING_MESSAGE);
+            txtTanggal.requestFocus();
             return;
         }
 
-        a.setJamMasuk(txtJamMasuk.getText().trim());
-        a.setJamKeluar(txtJamKeluar.getText().trim());
+        a.setJamMasuk(jamMasuk);
+        a.setJamKeluar(jamKeluar);
         a.setKeterangan(txtKeterangan.getText().trim());
         a.setTerlambat(chkTerlambat.isSelected());
         a.setMenitTerlambat((Integer) spnMenit.getValue());
@@ -221,6 +288,7 @@ public class ViewAbsensi extends JPanel {
             public void onSuccess(String p) {
                 JOptionPane.showMessageDialog(ViewAbsensi.this, p);
                 loadAbsensi();
+                resetForm();
             }
 
             @Override
@@ -232,6 +300,19 @@ public class ViewAbsensi extends JPanel {
             public void onDataLoaded(List<ModelAbsensi> d) {
             }
         });
+    }
+
+    private void resetForm() {
+        cboKaryawan.setSelectedIndex(0);
+        txtTanggal.setText(new SimpleDateFormat("dd/MM/yyyy").format(new Date()));
+        txtJamMasuk.setText("08:00");
+        txtJamKeluar.setText("17:00");
+        txtKeterangan.setText("");
+        chkTerlambat.setSelected(false);
+        chkPulangAwal.setSelected(false);
+        spnMenit.setValue(0);
+        spnMenit.setEnabled(false);
+        cboStatus.setSelectedIndex(0);
     }
 
     public void refreshKaryawan() {

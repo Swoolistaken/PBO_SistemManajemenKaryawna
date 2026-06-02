@@ -18,6 +18,10 @@ public class ControllerKPI {
         void onDataLoaded(List<ModelKPI> data);
     }
 
+    public List<ModelKPI> getAllKPI() throws SQLException {
+        return daoKPI.getAll();
+    }
+
     public void simpanKPIAsync(ModelKPI kpi, KPIListener listener) {
         new Thread(() -> {
             try {
