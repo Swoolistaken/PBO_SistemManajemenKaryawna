@@ -22,6 +22,17 @@ public class ControllerKPI {
         return daoKPI.getAll();
     }
 
+    public void loadSemuaKPIAsync(KPIListener listener) {
+        new Thread(() -> {
+            try {
+                List<ModelKPI> list = daoKPI.getAll();
+                javax.swing.SwingUtilities.invokeLater(() -> listener.onDataLoaded(list));
+            } catch (SQLException e) {
+                javax.swing.SwingUtilities.invokeLater(() -> listener.onError(e.getMessage()));
+            }
+        }, "Thread-LoadSemuaKPI").start();
+    }
+
     public void simpanKPIAsync(ModelKPI kpi, KPIListener listener) {
         new Thread(() -> {
             try {

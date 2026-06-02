@@ -297,10 +297,7 @@ public class EditData extends JPanel {
     }
 
     private void loadSemuaKPI() {
-        controllerKPI.loadKPIByPeriodeAsync(
-                (Integer) cboPeriode.getSelectedItem(),
-                cboBulan.getSelectedIndex() + 1,
-                new ControllerKPI.KPIListener() {
+        controllerKPI.loadSemuaKPIAsync(new ControllerKPI.KPIListener() {
             @Override
             public void onSuccess(String p) {
             }
@@ -313,9 +310,9 @@ public class EditData extends JPanel {
             @Override
             public void onDataLoaded(List<ModelKPI> data) {
                 isiTabel(data);
+                lblInfo.setText("Total: " + data.size() + " penilaian (semua periode)");
             }
-        }
-        );
+        });
     }
 
     private void isiTabel(List<ModelKPI> data) {

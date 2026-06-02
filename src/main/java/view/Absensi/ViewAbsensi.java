@@ -65,6 +65,7 @@ public class ViewAbsensi extends JPanel {
             "HADIR", "IZIN", "SAKIT", "ALPHA", "CUTI", "DINAS_LUAR", "WORK_FROM_HOME"
         });
 
+        cboStatus.addActionListener(e -> onStatusChanged());
         SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
         txtTanggal = new JTextField(sdf.format(new Date()));
         txtJamMasuk = new JTextField("08:00");
@@ -238,23 +239,30 @@ public class ViewAbsensi extends JPanel {
             return;
         }
 
-        // ===== FIX POINT 3: validasi format jam HH:mm =====
+        String status = (String) cboStatus.getSelectedItem();
         String jamMasuk = txtJamMasuk.getText().trim();
         String jamKeluar = txtJamKeluar.getText().trim();
 
-        if (!jamMasuk.matches("^([01]\\d|2[0-3]):[0-5]\\d$")) {
-            JOptionPane.showMessageDialog(this,
-                    "Format jam masuk tidak valid!\nGunakan format HH:mm, contoh: 08:00",
-                    "Validasi", JOptionPane.WARNING_MESSAGE);
-            txtJamMasuk.requestFocus();
-            return;
-        }
-        if (!jamKeluar.matches("^([01]\\d|2[0-3]):[0-5]\\d$")) {
-            JOptionPane.showMessageDialog(this,
-                    "Format jam keluar tidak valid!\nGunakan format HH:mm, contoh: 17:00",
-                    "Validasi", JOptionPane.WARNING_MESSAGE);
-            txtJamKeluar.requestFocus();
-            return;
+        boolean isHadir = status != null && (status.equals("HADIR")
+                || status.equals("DINAS_LUAR")
+                || status.equals("WORK_FROM_HOME"));
+
+        // Validasi jam hanya kalau status hadir
+        if (isHadir) {
+            if (!jamMasuk.matches("^([01]\\d|2[0-3]):[0-5]\\d$")) {
+                JOptionPane.showMessageDialog(this,
+                        "Format jam masuk tidak valid!\nGunakan format HH:mm, contoh: 08:00",
+                        "Validasi", JOptionPane.WARNING_MESSAGE);
+                txtJamMasuk.requestFocus();
+                return;
+            }
+            if (!jamKeluar.matches("^([01]\\d|2[0-3]):[0-5]\\d$")) {
+                JOptionPane.showMessageDialog(this,
+                        "Format jam keluar tidak valid!\nGunakan format HH:mm, contoh: 17:00",
+                        "Validasi", JOptionPane.WARNING_MESSAGE);
+                txtJamKeluar.requestFocus();
+                return;
+            }
         }
 
         ModelKaryawan k = daftarKaryawan.get(idx);
@@ -270,15 +278,16 @@ public class ViewAbsensi extends JPanel {
             return;
         }
 
-        a.setJamMasuk(jamMasuk);
-        a.setJamKeluar(jamKeluar);
+        // Kalau bukan hadir, jam disimpan null / kosong
+        a.setJamMasuk(isHadir ? jamMasuk : null);
+        a.setJamKeluar(isHadir ? jamKeluar : null);
         a.setKeterangan(txtKeterangan.getText().trim());
-        a.setTerlambat(chkTerlambat.isSelected());
-        a.setMenitTerlambat((Integer) spnMenit.getValue());
-        a.setPulangAwal(chkPulangAwal.isSelected());
+        a.setTerlambat(isHadir && chkTerlambat.isSelected());
+        a.setMenitTerlambat(isHadir && chkTerlambat.isSelected() ? (Integer) spnMenit.getValue() : 0);
+        a.setPulangAwal(isHadir && chkPulangAwal.isSelected());
 
         try {
-            a.setStatus(ModelAbsensi.StatusAbsensi.valueOf((String) cboStatus.getSelectedItem()));
+            a.setStatus(ModelAbsensi.StatusAbsensi.valueOf(status));
         } catch (Exception ex) {
             a.setStatus(ModelAbsensi.StatusAbsensi.HADIR);
         }
@@ -313,6 +322,30 @@ public class ViewAbsensi extends JPanel {
         spnMenit.setValue(0);
         spnMenit.setEnabled(false);
         cboStatus.setSelectedIndex(0);
+    }
+
+    private void onStatusChanged() {
+        String status = (String) cboStatus.getSelectedItem();
+        boolean isHadir = status != null && (status.equals("HADIR")
+                || status.equals("DINAS_LUAR")
+                || status.equals("WORK_FROM_HOME"));
+
+        txtJamMasuk.setEnabled(isHadir);
+        txtJamKeluar.setEnabled(isHadir);
+        chkTerlambat.setEnabled(isHadir);
+        chkPulangAwal.setEnabled(isHadir);
+
+        if (!isHadir) {
+            txtJamMasuk.setText("-");
+            txtJamKeluar.setText("-");
+            chkTerlambat.setSelected(false);
+            chkPulangAwal.setSelected(false);
+            spnMenit.setValue(0);
+            spnMenit.setEnabled(false);
+        } else {
+            txtJamMasuk.setText("08:00");
+            txtJamKeluar.setText("17:00");
+        }
     }
 
     public void refreshKaryawan() {
