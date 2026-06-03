@@ -62,4 +62,12 @@ public class ControllerAbsensi {
     public int getTotalAbsensi() throws SQLException {
         return daoAbsensi.getTotal();
     }
+
+    public int getTotalMenitTerlambat(int karyawanId, int bulan, int tahun) throws SQLException {
+        return daoAbsensi.getTotalMenitTerlambat(karyawanId, bulan, tahun);
+    }
+
+    public int getTotalAlpha(int karyawanId, int bulan, int tahun) throws SQLException {
+        return daoAbsensi.getTotalAlpha(karyawanId, bulan, tahun);
+    }
 }

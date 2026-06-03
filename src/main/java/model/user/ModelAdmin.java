@@ -1,6 +1,6 @@
 package model.user;
 
-public class ModelAdmin extends ModelUser {
+public class ModelAdmin extends User {
 
     public ModelAdmin() {
         super();

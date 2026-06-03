@@ -1,6 +1,6 @@
 package controller;
 
-import model.user.ModelUser;
+import model.user.User;
 import model.user.DAOUser;
 import java.math.BigInteger;
 import java.security.MessageDigest;
@@ -9,11 +9,11 @@ import java.sql.SQLException;
 public class ControllerAuth {
 
     private final DAOUser daoUser = new DAOUser();
-    private static ModelUser currentUser = null;
+    private static User currentUser = null;
 
     public interface LoginListener {
 
-        void onSuccess(ModelUser user);
+        void onSuccess(User user);
 
         void onError(String pesan);
     }
@@ -29,7 +29,7 @@ public class ControllerAuth {
                 }
 
                 String hashedPassword = hashMD5(password);
-                ModelUser user = daoUser.login(username.trim(), hashedPassword);
+                User user = daoUser.login(username.trim(), hashedPassword);
 
                 if (user == null) {
                     javax.swing.SwingUtilities.invokeLater(()
@@ -46,7 +46,7 @@ public class ControllerAuth {
         }, "Thread-Login").start();
     }
 
-    public static ModelUser getCurrentUser() {
+    public static User getCurrentUser() {
         return currentUser;
     }
 

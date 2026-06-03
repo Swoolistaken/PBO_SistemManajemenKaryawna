@@ -157,4 +157,33 @@ public class ModelKaryawan extends Karyawan {
     public void setKeahlian(String keahlian) {
         this.keahlian = keahlian;
     }
+
+    public double hitungPotonganKeterlambatan(int totalMenitTerlambat) {
+        double gajiHarian = gajiPokok / 22.0; // asumsi 22 hari kerja
+        if (totalMenitTerlambat <= 0) {
+            return 0;
+        }
+        if (totalMenitTerlambat <= 30) {
+            return gajiHarian * 0.05;
+        }
+        if (totalMenitTerlambat <= 60) {
+            return gajiHarian * 0.10;
+        }
+        if (totalMenitTerlambat <= 120) {
+            return gajiHarian * 0.25;
+        }
+        return gajiHarian * 0.50;
+    }
+
+    public double hitungPotonganAlpha(int jumlahAlpha) {
+        double gajiHarian = gajiPokok / 22.0;
+        return gajiHarian * jumlahAlpha; // potong 1 hari gaji per alpha
+    }
+
+    public double hitungTotalGajiBersih(int totalMenitTerlambat, int jumlahAlpha) {
+        double totalKotor = hitungTotalGaji();
+        double potonganTerlambat = hitungPotonganKeterlambatan(totalMenitTerlambat);
+        double potonganAlpha = hitungPotonganAlpha(jumlahAlpha);
+        return Math.max(0, totalKotor - potonganTerlambat - potonganAlpha);
+    }
 }

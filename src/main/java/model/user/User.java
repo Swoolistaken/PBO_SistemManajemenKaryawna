@@ -2,7 +2,7 @@ package model.user;
 
 import java.util.Date;
 
-public abstract class ModelUser {
+public abstract class User {
 
     private int id;
     private String username;
@@ -12,11 +12,11 @@ public abstract class ModelUser {
     private boolean aktif;
     private Date lastLogin;
 
-    public ModelUser() {
+    public User() {
         this.aktif = true;
     }
 
-    public ModelUser(String username, String password, String namaLengkap) {
+    public User(String username, String password, String namaLengkap) {
         this.username = username;
         this.password = password;
         this.namaLengkap = namaLengkap;

@@ -1,6 +1,6 @@
 package model.user;
 
-public class ModelHRD extends ModelUser {
+public class ModelHRD extends User {
 
     public ModelHRD() {
         super();

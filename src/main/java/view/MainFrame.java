@@ -8,13 +8,13 @@ import java.awt.*;
 import java.awt.event.*;
 import javax.swing.*;
 import model.karyawan.ModelKaryawan;
-import model.user.ModelUser;
+import model.user.User;
 import view.Absensi.ViewAbsensi;
 import view.karyawan.*;
 
 public class MainFrame extends JFrame {
 
-    private final ModelUser currentUser;
+    private final User currentUser;
 
     private final ControllerKaryawan controllerKaryawan = new ControllerKaryawan();
     private final ControllerKPI controllerKPI = new ControllerKPI();
@@ -28,7 +28,7 @@ public class MainFrame extends JFrame {
     private EditData editData;
     private ViewAbsensi viewAbsensi;
 
-    public MainFrame(ModelUser user) {
+    public MainFrame(User user) {
         this.currentUser = user;
         initFrame();
         initPanels();
@@ -247,29 +247,49 @@ public class MainFrame extends JFrame {
     }
 
     private void kalkulasiGaji() {
+        // Ambil bulan dan tahun sekarang
+        java.util.Calendar cal = java.util.Calendar.getInstance();
+        int bulan = cal.get(java.util.Calendar.MONTH) + 1;
+        int tahun = cal.get(java.util.Calendar.YEAR);
+
         new Thread(() -> {
             try {
                 java.util.List<ModelKaryawan> list = controllerKaryawan.getAllKaryawan();
-                double total = 0;
+                double totalPengeluaran = 0;
                 StringBuilder sb = new StringBuilder();
-                sb.append(String.format("%-25s %-15s %20s%n", "Nama", "Jabatan", "Total Gaji"));
-                sb.append("=".repeat(62)).append("\n");
+                sb.append(String.format("%-20s %-12s %15s %15s %15s%n",
+                        "Nama", "Jabatan", "Gaji Kotor", "Potongan", "Gaji Bersih"));
+                sb.append("=".repeat(80)).append("\n");
                 for (ModelKaryawan k : list) {
-                    if ("AKTIF".equals(k.getStatus())) {
-                        total += k.hitungTotalGaji();
-                        sb.append(String.format("%-25s %-15s %,20.0f%n",
-                                k.getNama(), k.getJabatan(), k.hitungTotalGaji()));
+                    if (!"AKTIF".equals(k.getStatus())) {
+                        continue;
                     }
+
+                    int totalMenit = controllerAbsensi.getTotalMenitTerlambat(k.getId(), bulan, tahun);
+                    int totalAlpha = controllerAbsensi.getTotalAlpha(k.getId(), bulan, tahun);
+
+                    double gajiKotor = k.hitungTotalGaji();
+                    double potongan = k.hitungPotonganKeterlambatan(totalMenit)
+                            + k.hitungPotonganAlpha(totalAlpha);
+                    double gajiBersih = k.hitungTotalGajiBersih(totalMenit, totalAlpha);
+                    totalPengeluaran += gajiBersih;
+
+                    sb.append(String.format("%-20s %-12s %,15.0f %,15.0f %,15.0f%n",
+                            k.getNama(), k.getJabatan(), gajiKotor, potongan, gajiBersih));
                 }
-                sb.append("=".repeat(62)).append("\n");
-                sb.append(String.format("%-40s %,20.0f%n", "TOTAL PENGELUARAN GAJI:", total));
+
+                sb.append("=".repeat(80)).append("\n");
+                sb.append(String.format("%-32s %15s %15s %,15.0f%n",
+                        "TOTAL PENGELUARAN", "", "", totalPengeluaran));
+                sb.append("\nPeriode: " + bulan + "/" + tahun);
+
                 final String hasil = sb.toString();
                 SwingUtilities.invokeLater(() -> {
                     JTextArea ta = new JTextArea(hasil);
                     ta.setFont(new Font("Monospaced", Font.PLAIN, 12));
                     ta.setEditable(false);
                     JOptionPane.showMessageDialog(this,
-                            new JScrollPane(ta), "Rekap Penggajian",
+                            new JScrollPane(ta), "Rekap Penggajian Bulan Ini",
                             JOptionPane.INFORMATION_MESSAGE);
                 });
             } catch (Exception ex) {

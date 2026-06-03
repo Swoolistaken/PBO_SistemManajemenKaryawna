@@ -6,14 +6,14 @@ import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 
-public class DAOUser implements InterfaceDAO<ModelUser> {
+public class DAOUser implements InterfaceDAO<User> {
 
     private Connection getConn() throws SQLException {
         return Connector.getInstance().getConnection();
     }
 
     @Override
-    public boolean simpan(ModelUser u) throws SQLException {
+    public boolean simpan(User u) throws SQLException {
         String sql = "INSERT INTO users (username, password, nama_lengkap, role, aktif) VALUES (?,?,?,?,?)";
         try (PreparedStatement ps = getConn().prepareStatement(sql)) {
             ps.setString(1, u.getUsername());
@@ -28,7 +28,7 @@ public class DAOUser implements InterfaceDAO<ModelUser> {
     }
 
     @Override
-    public boolean update(ModelUser u) throws SQLException {
+    public boolean update(User u) throws SQLException {
         String sql = "UPDATE users SET username=?, nama_lengkap=?, role=?, aktif=? WHERE id=?";
         try (PreparedStatement ps = getConn().prepareStatement(sql)) {
             ps.setString(1, u.getUsername());
@@ -49,8 +49,8 @@ public class DAOUser implements InterfaceDAO<ModelUser> {
     }
 
     @Override
-    public List<ModelUser> getAll() throws SQLException {
-        List<ModelUser> list = new ArrayList<>();
+    public List<User> getAll() throws SQLException {
+        List<User> list = new ArrayList<>();
         try (Statement st = getConn().createStatement(); ResultSet rs = st.executeQuery("SELECT * FROM users ORDER BY nama_lengkap")) {
             while (rs.next()) {
                 list.add(mapRow(rs));
@@ -60,7 +60,7 @@ public class DAOUser implements InterfaceDAO<ModelUser> {
     }
 
     @Override
-    public ModelUser getById(int id) throws SQLException {
+    public User getById(int id) throws SQLException {
         try (PreparedStatement ps = getConn().prepareStatement("SELECT * FROM users WHERE id=?")) {
             ps.setInt(1, id);
             ResultSet rs = ps.executeQuery();
@@ -72,8 +72,8 @@ public class DAOUser implements InterfaceDAO<ModelUser> {
     }
 
     @Override
-    public List<ModelUser> cari(String keyword) throws SQLException {
-        List<ModelUser> list = new ArrayList<>();
+    public List<User> cari(String keyword) throws SQLException {
+        List<User> list = new ArrayList<>();
         String sql = "SELECT * FROM users WHERE username LIKE ? OR nama_lengkap LIKE ?";
         try (PreparedStatement ps = getConn().prepareStatement(sql)) {
             ps.setString(1, "%" + keyword + "%");
@@ -96,14 +96,14 @@ public class DAOUser implements InterfaceDAO<ModelUser> {
         return 0;
     }
 
-    public ModelUser login(String username, String hashedPassword) throws SQLException {
+    public User login(String username, String hashedPassword) throws SQLException {
         String sql = "SELECT * FROM users WHERE username=? AND password=? AND aktif=true";
         try (PreparedStatement ps = getConn().prepareStatement(sql)) {
             ps.setString(1, username);
             ps.setString(2, hashedPassword);
             ResultSet rs = ps.executeQuery();
             if (rs.next()) {
-                ModelUser user = mapRow(rs);
+                User user = mapRow(rs);
                 // Update last login
                 updateLastLogin(user.getId());
                 return user;
@@ -120,9 +120,9 @@ public class DAOUser implements InterfaceDAO<ModelUser> {
         }
     }
 
-    private ModelUser mapRow(ResultSet rs) throws SQLException {
+    private User mapRow(ResultSet rs) throws SQLException {
         String role = rs.getString("role");
-        ModelUser user;
+        User user;
         switch (role) {
             case "ADMIN":
                 user = new ModelAdmin();

@@ -1,6 +1,6 @@
 package model.user;
 
-public class ModelManager extends ModelUser {
+public class ModelManager extends User {
 
     private String departemen;
 

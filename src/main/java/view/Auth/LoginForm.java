@@ -1,7 +1,7 @@
 package view.auth;
 
 import controller.ControllerAuth;
-import model.user.ModelUser;
+import model.user.User;
 import view.MainFrame;
 
 import javax.swing.*;
@@ -114,7 +114,7 @@ public class LoginForm extends JFrame {
 
         controllerAuth.loginAsync(username, password, new ControllerAuth.LoginListener() {
             @Override
-            public void onSuccess(ModelUser user) {
+            public void onSuccess(User user) {
                 dispose();
                 new MainFrame(user).setVisible(true);
             }
