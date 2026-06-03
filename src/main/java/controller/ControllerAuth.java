@@ -18,32 +18,29 @@ public class ControllerAuth {
         void onError(String pesan);
     }
 
-    public void loginAsync(String username, String password, LoginListener listener) {
-        new Thread(() -> {
-            try {
-                if (username == null || username.trim().isEmpty()) {
-                    throw new IllegalArgumentException("Username tidak boleh kosong!");
-                }
-                if (password == null || password.trim().isEmpty()) {
-                    throw new IllegalArgumentException("Password tidak boleh kosong!");
-                }
-
-                String hashedPassword = hashMD5(password);
-                User user = daoUser.login(username.trim(), hashedPassword);
-
-                if (user == null) {
-                    javax.swing.SwingUtilities.invokeLater(()
-                            -> listener.onError("Username atau password salah!"));
-                } else {
-                    currentUser = user;
-                    javax.swing.SwingUtilities.invokeLater(() -> listener.onSuccess(user));
-                }
-            } catch (IllegalArgumentException e) {
-                javax.swing.SwingUtilities.invokeLater(() -> listener.onError(e.getMessage()));
-            } catch (SQLException e) {
-                javax.swing.SwingUtilities.invokeLater(() -> listener.onError("Error database: " + e.getMessage()));
+    public void login(String username, String password, LoginListener listener) {
+        try {
+            if (username == null || username.trim().isEmpty()) {
+                throw new IllegalArgumentException("Username tidak boleh kosong!");
             }
-        }, "Thread-Login").start();
+            if (password == null || password.trim().isEmpty()) {
+                throw new IllegalArgumentException("Password tidak boleh kosong!");
+            }
+
+            String hashed = hashMD5(password);
+            User user = daoUser.login(username.trim(), hashed);
+
+            if (user == null) {
+                listener.onError("Username atau password salah!");
+            } else {
+                currentUser = user;
+                listener.onSuccess(user);
+            }
+        } catch (IllegalArgumentException e) {
+            listener.onError(e.getMessage());
+        } catch (SQLException e) {
+            listener.onError("Error database: " + e.getMessage());
+        }
     }
 
     public static User getCurrentUser() {
@@ -61,8 +58,8 @@ public class ControllerAuth {
     public static String hashMD5(String input) {
         try {
             MessageDigest md = MessageDigest.getInstance("MD5");
-            byte[] messageDigest = md.digest(input.getBytes());
-            BigInteger no = new BigInteger(1, messageDigest);
+            byte[] digest = md.digest(input.getBytes());
+            BigInteger no = new BigInteger(1, digest);
             StringBuilder hash = new StringBuilder(no.toString(16));
             while (hash.length() < 32) {
                 hash.insert(0, "0");

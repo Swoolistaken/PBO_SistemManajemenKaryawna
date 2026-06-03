@@ -18,78 +18,68 @@ public class ControllerKPI {
         void onDataLoaded(List<ModelKPI> data);
     }
 
-    public List<ModelKPI> getAllKPI() throws SQLException {
-        return daoKPI.getAll();
+    public void simpanKPI(ModelKPI kpi, KPIListener listener) {
+        try {
+            validasi(kpi);
+            boolean ok = daoKPI.simpan(kpi);
+            if (ok) {
+                listener.onSuccess("KPI berhasil disimpan! Grade: " + kpi.getGradeKPI());
+            } else {
+                listener.onError("Gagal menyimpan KPI.");
+            }
+        } catch (IllegalArgumentException e) {
+            listener.onError("Validasi: " + e.getMessage());
+        } catch (SQLException e) {
+            listener.onError(e.getMessage());
+        }
     }
 
-    public void loadSemuaKPIAsync(KPIListener listener) {
-        new Thread(() -> {
-            try {
-                List<ModelKPI> list = daoKPI.getAll();
-                javax.swing.SwingUtilities.invokeLater(() -> listener.onDataLoaded(list));
-            } catch (SQLException e) {
-                javax.swing.SwingUtilities.invokeLater(() -> listener.onError(e.getMessage()));
-            }
-        }, "Thread-LoadSemuaKPI").start();
+    public void loadKPIByKaryawan(int karyawanId, KPIListener listener) {
+        try {
+            List<ModelKPI> list = daoKPI.getByKaryawan(karyawanId);
+            listener.onDataLoaded(list);
+        } catch (SQLException e) {
+            listener.onError(e.getMessage());
+        }
     }
 
-    public void simpanKPIAsync(ModelKPI kpi, KPIListener listener) {
-        new Thread(() -> {
-            try {
-                validasi(kpi);
-                boolean ok = daoKPI.simpan(kpi);
-                if (ok) {
-                    javax.swing.SwingUtilities.invokeLater(() -> listener.onSuccess("KPI berhasil disimpan! Grade: " + kpi.getGradeKPI()));
-                } else {
-                    javax.swing.SwingUtilities.invokeLater(() -> listener.onError("Gagal menyimpan KPI."));
-                }
-            } catch (IllegalArgumentException e) {
-                javax.swing.SwingUtilities.invokeLater(() -> listener.onError("Validasi: " + e.getMessage()));
-            } catch (SQLException e) {
-                javax.swing.SwingUtilities.invokeLater(() -> listener.onError(e.getMessage()));
-            }
-        }, "Thread-SimpanKPI").start();
+    public void loadKPIByPeriode(int periode, int bulan, KPIListener listener) {
+        try {
+            List<ModelKPI> list = daoKPI.getByPeriode(periode, bulan);
+            listener.onDataLoaded(list);
+        } catch (SQLException e) {
+            listener.onError(e.getMessage());
+        }
     }
 
-    public void loadKPIByKaryawanAsync(int karyawanId, KPIListener listener) {
-        new Thread(() -> {
-            try {
-                List<ModelKPI> list = daoKPI.getByKaryawan(karyawanId);
-                javax.swing.SwingUtilities.invokeLater(() -> listener.onDataLoaded(list));
-            } catch (SQLException e) {
-                javax.swing.SwingUtilities.invokeLater(() -> listener.onError(e.getMessage()));
-            }
-        }, "Thread-LoadKPI").start();
+    public void loadSemuaKPI(KPIListener listener) {
+        try {
+            List<ModelKPI> list = daoKPI.getAll();
+            listener.onDataLoaded(list);
+        } catch (SQLException e) {
+            listener.onError(e.getMessage());
+        }
     }
 
-    public void loadKPIByPeriodeAsync(int periode, int bulan, KPIListener listener) {
-        new Thread(() -> {
-            try {
-                List<ModelKPI> list = daoKPI.getByPeriode(periode, bulan);
-                javax.swing.SwingUtilities.invokeLater(() -> listener.onDataLoaded(list));
-            } catch (SQLException e) {
-                javax.swing.SwingUtilities.invokeLater(() -> listener.onError(e.getMessage()));
+    public void hapusKPI(int id, KPIListener listener) {
+        try {
+            boolean ok = daoKPI.hapus(id);
+            if (ok) {
+                listener.onSuccess("KPI berhasil dihapus!");
+            } else {
+                listener.onError("Gagal menghapus KPI.");
             }
-        }, "Thread-LoadKPIPeriode").start();
-    }
-
-    public void hapusKPIAsync(int id, KPIListener listener) {
-        new Thread(() -> {
-            try {
-                boolean ok = daoKPI.hapus(id);
-                if (ok) {
-                    javax.swing.SwingUtilities.invokeLater(() -> listener.onSuccess("KPI berhasil dihapus!"));
-                } else {
-                    javax.swing.SwingUtilities.invokeLater(() -> listener.onError("Gagal menghapus KPI."));
-                }
-            } catch (SQLException e) {
-                javax.swing.SwingUtilities.invokeLater(() -> listener.onError(e.getMessage()));
-            }
-        }, "Thread-HapusKPI").start();
+        } catch (SQLException e) {
+            listener.onError(e.getMessage());
+        }
     }
 
     public int getTotalKPI() throws SQLException {
         return daoKPI.getTotal();
+    }
+
+    public List<ModelKPI> getAllKPI() throws SQLException {
+        return daoKPI.getAll();
     }
 
     private void validasi(ModelKPI kpi) {
