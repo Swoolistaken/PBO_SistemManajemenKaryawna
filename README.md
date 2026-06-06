@@ -2,8 +2,9 @@
 **Tugas Praktikum PBO — Sistem Manajemen Karyawan**
 
 ---
-
+```
 ## 📁 Struktur Projectsrc/
+src/
 ├── com/mycompany/employeemanagement/
 │   └── Main.java
 │
@@ -45,9 +46,8 @@
 │   └── EditData.java
 └── Absensi/
 └── ViewAbsensi.java
-
 ---
-
+```
 ## 🚀 Cara Menjalankan di NetBeans
 
 ### 1. Setup Database
