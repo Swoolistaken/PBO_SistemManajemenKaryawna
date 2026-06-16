@@ -1,11 +1,12 @@
 package model.karyawan;
 
+import model.InterfaceDAO;
 import model.Connector;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 
-public class DAO implements InterfaceDAO<ModelKaryawan> {
+public class DAOKaryawan implements InterfaceDAO<ModelKaryawan> {
 
     private Connection getConn() throws SQLException {
         return Connector.getInstance().getConnection();

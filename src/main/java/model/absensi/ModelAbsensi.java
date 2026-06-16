@@ -1,4 +1,4 @@
-package model.karyawan;
+package model.absensi;
 
 import java.util.Date;
 

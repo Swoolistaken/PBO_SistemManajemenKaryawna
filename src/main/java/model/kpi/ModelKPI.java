@@ -1,4 +1,4 @@
-package model.karyawan;
+package model.kpi;
 
 import java.util.Date;
 
@@ -44,7 +44,7 @@ public class ModelKPI {
     private Date tanggalPenilaian;
     private String penilai;
 
-    // ===== Constructor =====
+
     public ModelKPI() {
         this.tanggalPenilaian = new Date();
     }

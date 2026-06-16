@@ -4,12 +4,9 @@ import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
 
-/**
- * Singleton Database Connector Implementasi: Encapsulation, Exception Handling
- */
+
 public class Connector {
 
-    // ===== ENCAPSULATION =====
     private static Connector instance;
     private Connection connection;
 
@@ -20,7 +17,7 @@ public class Connector {
     private static final String PASSWORD = "";
     private static final String URL = "jdbc:mysql://" + HOST + ":" + PORT + "/" + DATABASE + "?useSSL=false&serverTimezone=UTC";
 
-    // ===== ENCAPSULATION: Private constructor (Singleton Pattern) =====
+    
     private Connector() {
     }
 

@@ -31,7 +31,7 @@ public abstract class Karyawan {
         return "NIK: " + nik + " | Nama: " + nama + " | Jabatan: " + getJabatan();
     }
 
-    // ===== ENCAPSULATION: Getters & Setters =====
+    // Getters & Setters
     public int getId() {
         return id;
     }

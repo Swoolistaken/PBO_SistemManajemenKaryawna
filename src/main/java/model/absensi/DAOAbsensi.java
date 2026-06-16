@@ -1,9 +1,10 @@
-package model.karyawan;
+package model.absensi;
 
 import model.Connector;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
+import model.InterfaceDAO;
 
 public class DAOAbsensi implements InterfaceDAO<ModelAbsensi> {
 
@@ -154,5 +155,35 @@ public class DAOAbsensi implements InterfaceDAO<ModelAbsensi> {
         a.setMenitTerlambat(rs.getInt("menit_terlambat"));
         a.setPulangAwal(rs.getBoolean("pulang_awal"));
         return a;
+    }
+
+    public int getTotalMenitTerlambat(int karyawanId, int bulan, int tahun) throws SQLException {
+        String sql = "SELECT COALESCE(SUM(menit_terlambat), 0) FROM absensi "
+                + "WHERE karyawan_id=? AND MONTH(tanggal)=? AND YEAR(tanggal)=? AND terlambat=true";
+        try (PreparedStatement ps = getConn().prepareStatement(sql)) {
+            ps.setInt(1, karyawanId);
+            ps.setInt(2, bulan);
+            ps.setInt(3, tahun);
+            ResultSet rs = ps.executeQuery();
+            if (rs.next()) {
+                return rs.getInt(1);
+            }
+        }
+        return 0;
+    }
+
+    public int getTotalAlpha(int karyawanId, int bulan, int tahun) throws SQLException {
+        String sql = "SELECT COUNT(*) FROM absensi "
+                + "WHERE karyawan_id=? AND MONTH(tanggal)=? AND YEAR(tanggal)=? AND status='ALPHA'";
+        try (PreparedStatement ps = getConn().prepareStatement(sql)) {
+            ps.setInt(1, karyawanId);
+            ps.setInt(2, bulan);
+            ps.setInt(3, tahun);
+            ResultSet rs = ps.executeQuery();
+            if (rs.next()) {
+                return rs.getInt(1);
+            }
+        }
+        return 0;
     }
 }

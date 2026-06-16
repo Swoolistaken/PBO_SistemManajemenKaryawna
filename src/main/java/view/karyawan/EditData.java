@@ -1,379 +1,322 @@
 package view.karyawan;
 
 import controller.ControllerKaryawan;
-import model.karyawan.*;
+import controller.ControllerKPI;
+import model.karyawan.ModelKaryawan;
+import model.kpi.ModelKPI;
 
 import javax.swing.*;
-import javax.swing.border.*;
-import javax.swing.table.*;
+import javax.swing.table.DefaultTableModel;
 import java.awt.*;
 import java.awt.event.*;
+import java.text.NumberFormat;
 import java.util.*;
 import java.util.List;
-import java.text.NumberFormat;
+import javax.swing.event.ChangeListener;
 
-/**
- * View untuk Penilaian KPI Karyawan
- * Implementasi: GUI SWING, MULTITHREAD
- */
 public class EditData extends JPanel {
 
-    private final ControllerKaryawan controller;
+    private final ControllerKaryawan controllerKaryawan;
+    private final ControllerKPI controllerKPI;
 
-    // Komponen form KPI
     private JComboBox<String> cboKaryawan;
     private JComboBox<Integer> cboPeriode;
     private JComboBox<String> cboBulan;
-    private JSlider sliderProduktivitas, sliderKualitas, sliderKehadiran, sliderTeamwork, sliderInovasi;
-    private JLabel lblNilaiProd, lblNilaiKual, lblNilaiHadir, lblNilaiTeam, lblNilaiInovasi;
+    private JSpinner spnProduktivitas, spnKualitas, spnKehadiran, spnTeamwork, spnInovasi;
     private JLabel lblNilaiAkhir, lblGrade, lblBonus;
     private JTextArea txtCatatan, txtTarget;
     private JTextField txtPenilai;
-    private JButton btnSimpan, btnHapus, btnReset;
+    private JButton btnSimpan, btnReset;
 
-    // Tabel riwayat KPI
-    private JTable tabelKPI;
+    private JTable tabel;
     private DefaultTableModel modelTabel;
+    private JLabel lblInfo;
 
     private List<ModelKaryawan> daftarKaryawan = new ArrayList<>();
     private int selectedKaryawanId = -1;
-    private int selectedKPIId = -1;
     private double gajiPokokKaryawan = 0;
 
     private final String[] NAMA_BULAN = {
-        "Januari","Februari","Maret","April","Mei","Juni",
-        "Juli","Agustus","September","Oktober","November","Desember"
+        "Januari", "Februari", "Maret", "April", "Mei", "Juni",
+        "Juli", "Agustus", "September", "Oktober", "November", "Desember"
     };
 
-    public EditData(ControllerKaryawan controller) {
-        this.controller = controller;
+    public EditData(ControllerKaryawan controllerKaryawan, ControllerKPI controllerKPI) {
+        this.controllerKaryawan = controllerKaryawan;
+        this.controllerKPI = controllerKPI;
         initUI();
         loadKaryawan();
     }
 
     private void initUI() {
-        setLayout(new BorderLayout(10, 10));
-        setBackground(new Color(245, 247, 251));
+        setLayout(new BorderLayout(5, 5));
+        setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
 
         JSplitPane split = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT,
-            buatPanelForm(), buatPanelRiwayat());
-        split.setDividerLocation(450);
-        split.setBorder(new EmptyBorder(10, 15, 10, 15));
-        split.setResizeWeight(0.45);
+                buatPanelForm(), buatPanelRiwayat());
+        split.setDividerLocation(400);
         add(split, BorderLayout.CENTER);
     }
 
-    // ===== Panel Form KPI =====
     private JScrollPane buatPanelForm() {
-        JPanel panel = new JPanel();
-        panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
-        panel.setBackground(Color.WHITE);
-        panel.setBorder(new CompoundBorder(
-            new LineBorder(new Color(210, 220, 240), 1, true),
-            new EmptyBorder(15, 15, 15, 15)
-        ));
+        JPanel panel = new JPanel(new GridBagLayout());
+        panel.setBorder(BorderFactory.createTitledBorder("Penilaian KPI"));
+        GridBagConstraints gbc = new GridBagConstraints();
+        gbc.insets = new Insets(4, 5, 4, 5);
+        gbc.fill = GridBagConstraints.HORIZONTAL;
+        gbc.weightx = 1.0;
 
-        // Judul
-        JLabel judul = new JLabel("📊 Penilaian KPI Karyawan");
-        judul.setFont(new Font("Segoe UI", Font.BOLD, 16));
-        judul.setForeground(new Color(30, 50, 110));
-        judul.setBorder(new MatteBorder(0, 0, 1, 0, new Color(180, 200, 240)));
-        judul.setAlignmentX(Component.LEFT_ALIGNMENT);
-        judul.setMaximumSize(new Dimension(Integer.MAX_VALUE, 35));
-        panel.add(judul);
-        panel.add(Box.createVerticalStrut(10));
+        int row = 0;
 
-        // Pilih karyawan
-        panel.add(buatRowForm("Karyawan *:", cboKaryawan = new JComboBox<>()));
+        // Karyawan
+        gbc.gridx = 0;
+        gbc.gridy = row;
+        gbc.weightx = 0;
+        panel.add(new JLabel("Karyawan *:"), gbc);
+        gbc.gridx = 1;
+        gbc.weightx = 1.0;
+        cboKaryawan = new JComboBox<>();
         cboKaryawan.addActionListener(e -> onKaryawanDipilih());
-        panel.add(Box.createVerticalStrut(5));
+        panel.add(cboKaryawan, gbc);
 
         // Periode
-        JPanel panelPeriode = new JPanel(new GridLayout(1, 2, 8, 0));
-        panelPeriode.setBackground(Color.WHITE);
-        panelPeriode.setAlignmentX(Component.LEFT_ALIGNMENT);
-        panelPeriode.setMaximumSize(new Dimension(Integer.MAX_VALUE, 32));
-
+        gbc.gridx = 0;
+        gbc.gridy = ++row;
+        gbc.weightx = 0;
+        panel.add(new JLabel("Tahun:"), gbc);
+        gbc.gridx = 1;
+        gbc.weightx = 1.0;
         int tahunIni = Calendar.getInstance().get(Calendar.YEAR);
         Integer[] tahunList = new Integer[10];
-        for (int i = 0; i < 10; i++) tahunList[i] = tahunIni - i;
+        for (int i = 0; i < 10; i++) {
+            tahunList[i] = tahunIni - i;
+        }
         cboPeriode = new JComboBox<>(tahunList);
+        panel.add(cboPeriode, gbc);
 
+        gbc.gridx = 0;
+        gbc.gridy = ++row;
+        gbc.weightx = 0;
+        panel.add(new JLabel("Bulan:"), gbc);
+        gbc.gridx = 1;
+        gbc.weightx = 1.0;
         cboBulan = new JComboBox<>(NAMA_BULAN);
         cboBulan.setSelectedIndex(Calendar.getInstance().get(Calendar.MONTH));
+        panel.add(cboBulan, gbc);
 
-        panelPeriode.add(cboPeriode);
-        panelPeriode.add(cboBulan);
-        panel.add(buatRowForm("Periode (Tahun / Bulan) *:", panelPeriode));
-        panel.add(Box.createVerticalStrut(10));
+        // Separator
+        gbc.gridx = 0;
+        gbc.gridy = ++row;
+        gbc.gridwidth = 2;
+        panel.add(new JSeparator(), gbc);
+        gbc.gridwidth = 1;
 
-        // ===== Slider Nilai KPI =====
-        JLabel lblPenilaian = new JLabel("━━ Penilaian (0 - 100) ━━");
-        lblPenilaian.setFont(new Font("Segoe UI", Font.BOLD, 12));
-        lblPenilaian.setForeground(new Color(60, 80, 150));
-        lblPenilaian.setAlignmentX(Component.LEFT_ALIGNMENT);
-        panel.add(lblPenilaian);
-        panel.add(Box.createVerticalStrut(6));
+        // Spinner nilai
+        spnProduktivitas = buatSpinner();
+        spnKualitas = buatSpinner();
+        spnKehadiran = buatSpinner();
+        spnTeamwork = buatSpinner();
+        spnInovasi = buatSpinner();
 
-        sliderProduktivitas = buatSlider();
-        sliderKualitas      = buatSlider();
-        sliderKehadiran     = buatSlider();
-        sliderTeamwork      = buatSlider();
-        sliderInovasi       = buatSlider();
+        ChangeListener updateListener = e -> updateHasil();
+        spnProduktivitas.addChangeListener(updateListener);
+        spnKualitas.addChangeListener(updateListener);
+        spnKehadiran.addChangeListener(updateListener);
+        spnTeamwork.addChangeListener(updateListener);
+        spnInovasi.addChangeListener(updateListener);
 
-        lblNilaiProd   = new JLabel("0");
-        lblNilaiKual   = new JLabel("0");
-        lblNilaiHadir  = new JLabel("0");
-        lblNilaiTeam   = new JLabel("0");
-        lblNilaiInovasi = new JLabel("0");
+        row = addRow(panel, gbc, ++row, "Produktivitas (30%)", spnProduktivitas);
+        row = addRow(panel, gbc, ++row, "Kualitas Kerja (25%)", spnKualitas);
+        row = addRow(panel, gbc, ++row, "Kehadiran (20%)", spnKehadiran);
+        row = addRow(panel, gbc, ++row, "Kerjasama Tim (15%)", spnTeamwork);
+        row = addRow(panel, gbc, ++row, "Inovasi (10%)", spnInovasi);
 
-        panel.add(buatRowSlider("Produktivitas (30%)", sliderProduktivitas, lblNilaiProd));
-        panel.add(buatRowSlider("Kualitas Kerja (25%)", sliderKualitas, lblNilaiKual));
-        panel.add(buatRowSlider("Kehadiran (20%)", sliderKehadiran, lblNilaiHadir));
-        panel.add(buatRowSlider("Kerjasama Tim (15%)", sliderTeamwork, lblNilaiTeam));
-        panel.add(buatRowSlider("Inovasi (10%)", sliderInovasi, lblNilaiInovasi));
-        panel.add(Box.createVerticalStrut(10));
+        // Separator
+        gbc.gridx = 0;
+        gbc.gridy = ++row;
+        gbc.gridwidth = 2;
+        panel.add(new JSeparator(), gbc);
+        gbc.gridwidth = 1;
 
-        // Hasil KPI
-        JPanel panelHasil = new JPanel(new GridLayout(3, 1, 0, 3));
-        panelHasil.setBackground(new Color(235, 245, 255));
-        panelHasil.setBorder(new CompoundBorder(
-            new LineBorder(new Color(160, 200, 240)), new EmptyBorder(8, 12, 8, 12)
-        ));
-        panelHasil.setAlignmentX(Component.LEFT_ALIGNMENT);
-        panelHasil.setMaximumSize(new Dimension(Integer.MAX_VALUE, 90));
-
+        // Hasil
         lblNilaiAkhir = new JLabel("Nilai Akhir: 0.00");
-        lblNilaiAkhir.setFont(new Font("Segoe UI", Font.BOLD, 14));
+        lblNilaiAkhir.setFont(new Font("Dialog", Font.BOLD, 13));
         lblGrade = new JLabel("Grade: -");
-        lblGrade.setFont(new Font("Segoe UI", Font.BOLD, 13));
         lblBonus = new JLabel("Estimasi Bonus: Rp 0");
-        lblBonus.setFont(new Font("Segoe UI", Font.PLAIN, 12));
-        lblBonus.setForeground(new Color(0, 130, 0));
 
-        panelHasil.add(lblNilaiAkhir);
-        panelHasil.add(lblGrade);
-        panelHasil.add(lblBonus);
-        panel.add(panelHasil);
-        panel.add(Box.createVerticalStrut(8));
+        gbc.gridx = 0;
+        gbc.gridy = ++row;
+        gbc.gridwidth = 2;
+        panel.add(lblNilaiAkhir, gbc);
+        gbc.gridy = ++row;
+        panel.add(lblGrade, gbc);
+        gbc.gridy = ++row;
+        panel.add(lblBonus, gbc);
+        gbc.gridwidth = 1;
 
-        // Catatan & penilai
-        panel.add(buatRowForm("Penilai *:", txtPenilai = new JTextField()));
-        panel.add(Box.createVerticalStrut(5));
-        panel.add(buatLabelKiri("Catatan Atasan:"));
-        txtCatatan = new JTextArea(3, 20);
-        txtCatatan.setFont(new Font("Segoe UI", Font.PLAIN, 12));
+        // Separator
+        gbc.gridx = 0;
+        gbc.gridy = ++row;
+        gbc.gridwidth = 2;
+        panel.add(new JSeparator(), gbc);
+        gbc.gridwidth = 1;
+
+        // Penilai & catatan
+        txtPenilai = new JTextField();
+        row = addRow(panel, gbc, ++row, "Penilai *", txtPenilai);
+
+        gbc.gridx = 0;
+        gbc.gridy = ++row;
+        gbc.weightx = 0;
+        panel.add(new JLabel("Catatan:"), gbc);
+        gbc.gridx = 1;
+        gbc.weightx = 1.0;
+        txtCatatan = new JTextArea(3, 15);
         txtCatatan.setLineWrap(true);
-        txtCatatan.setWrapStyleWord(true);
-        JScrollPane scCatatan = new JScrollPane(txtCatatan);
-        scCatatan.setAlignmentX(Component.LEFT_ALIGNMENT);
-        scCatatan.setMaximumSize(new Dimension(Integer.MAX_VALUE, 70));
-        panel.add(scCatatan);
-        panel.add(Box.createVerticalStrut(5));
-        panel.add(buatLabelKiri("Target Periode Berikutnya:"));
-        txtTarget = new JTextArea(2, 20);
-        txtTarget.setFont(new Font("Segoe UI", Font.PLAIN, 12));
+        panel.add(new JScrollPane(txtCatatan), gbc);
+
+        gbc.gridx = 0;
+        gbc.gridy = ++row;
+        gbc.weightx = 0;
+        panel.add(new JLabel("Target Berikutnya:"), gbc);
+        gbc.gridx = 1;
+        gbc.weightx = 1.0;
+        txtTarget = new JTextArea(2, 15);
         txtTarget.setLineWrap(true);
-        JScrollPane scTarget = new JScrollPane(txtTarget);
-        scTarget.setAlignmentX(Component.LEFT_ALIGNMENT);
-        scTarget.setMaximumSize(new Dimension(Integer.MAX_VALUE, 55));
-        panel.add(scTarget);
-        panel.add(Box.createVerticalStrut(10));
+        panel.add(new JScrollPane(txtTarget), gbc);
 
         // Tombol
-        JPanel panelTombol = new JPanel(new FlowLayout(FlowLayout.RIGHT, 5, 0));
-        panelTombol.setBackground(Color.WHITE);
-        panelTombol.setAlignmentX(Component.LEFT_ALIGNMENT);
-        panelTombol.setMaximumSize(new Dimension(Integer.MAX_VALUE, 40));
-
-        btnReset  = buatBtn("Reset",  new Color(130, 130, 160));
-        btnHapus  = buatBtn("Hapus",  new Color(200, 50,  50));
-        btnSimpan = buatBtn("Simpan", new Color(34,  139, 34));
-        btnHapus.setEnabled(false);
-
+        gbc.gridx = 0;
+        gbc.gridy = ++row;
+        gbc.gridwidth = 2;
+        JPanel tombolPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
+        btnReset = new JButton("Reset");
+        btnSimpan = new JButton("Simpan KPI");
         btnReset.addActionListener(e -> resetForm());
-        btnHapus.addActionListener(e -> hapusKPI());
         btnSimpan.addActionListener(e -> simpanKPI());
-
-        panelTombol.add(btnReset);
-        panelTombol.add(btnHapus);
-        panelTombol.add(btnSimpan);
-        panel.add(panelTombol);
+        tombolPanel.add(btnReset);
+        tombolPanel.add(btnSimpan);
+        panel.add(tombolPanel, gbc);
 
         JScrollPane scroll = new JScrollPane(panel);
-        scroll.setBorder(null);
         scroll.getVerticalScrollBar().setUnitIncrement(12);
         return scroll;
     }
 
-    // ===== Panel Riwayat KPI =====
     private JPanel buatPanelRiwayat() {
-        JPanel panel = new JPanel(new BorderLayout(0, 8));
-        panel.setBackground(Color.WHITE);
-        panel.setBorder(new CompoundBorder(
-            new LineBorder(new Color(210, 220, 240), 1, true),
-            new EmptyBorder(15, 15, 15, 15)
-        ));
+        JPanel panel = new JPanel(new BorderLayout(0, 5));
+        panel.setBorder(BorderFactory.createTitledBorder("Riwayat KPI"));
 
-        JLabel judul = new JLabel("📋 Riwayat Penilaian KPI");
-        judul.setFont(new Font("Segoe UI", Font.BOLD, 15));
-        judul.setForeground(new Color(30, 50, 110));
-        judul.setBorder(new MatteBorder(0, 0, 1, 0, new Color(180, 200, 240)));
-        panel.add(judul, BorderLayout.NORTH);
-
-        String[] kolom = {"No", "Karyawan", "Tahun", "Bulan", "Nilai", "Grade", "Bonus", "Penilai"};
+        String[] kolom = {"No", "Karyawan", "Tahun", "Bulan", "Nilai", "Grade", "Penilai"};
         modelTabel = new DefaultTableModel(kolom, 0) {
-            @Override public boolean isCellEditable(int r, int c) { return false; }
-        };
-        tabelKPI = new JTable(modelTabel);
-        tabelKPI.setFont(new Font("Segoe UI", Font.PLAIN, 12));
-        tabelKPI.setRowHeight(30);
-        tabelKPI.getTableHeader().setBackground(new Color(40, 60, 120));
-        tabelKPI.getTableHeader().setForeground(Color.WHITE);
-        tabelKPI.getTableHeader().setFont(new Font("Segoe UI", Font.BOLD, 12));
-        tabelKPI.setSelectionBackground(new Color(220, 235, 255));
-
-        tabelKPI.addMouseListener(new MouseAdapter() {
-            @Override public void mouseClicked(MouseEvent e) {
-                if (e.getClickCount() == 2) loadKPIKeForm();
+            @Override
+            public boolean isCellEditable(int r, int c) {
+                return false;
             }
-        });
+        };
+        tabel = new JTable(modelTabel);
+        tabel.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 
-        panel.add(new JScrollPane(tabelKPI), BorderLayout.CENTER);
+        panel.add(new JScrollPane(tabel), BorderLayout.CENTER);
 
-        JPanel panelFilter = new JPanel(new FlowLayout(FlowLayout.LEFT));
-        panelFilter.setBackground(Color.WHITE);
-        JButton btnMuat = buatBtn("Muat Semua KPI", new Color(60, 100, 180));
+        JPanel bawah = new JPanel(new FlowLayout(FlowLayout.LEFT));
+        lblInfo = new JLabel("Total: 0 penilaian");
+        JButton btnMuat = new JButton("Muat Semua");
         btnMuat.addActionListener(e -> loadSemuaKPI());
-        panelFilter.add(btnMuat);
-        panel.add(panelFilter, BorderLayout.SOUTH);
+        bawah.add(lblInfo);
+        bawah.add(btnMuat);
+        panel.add(bawah, BorderLayout.SOUTH);
 
         return panel;
     }
 
     // ===== Helpers =====
-    private JSlider buatSlider() {
-        JSlider s = new JSlider(0, 100, 0);
-        s.setBackground(Color.WHITE);
-        s.setPaintTicks(true);
-        s.setMajorTickSpacing(25);
-        s.setMinorTickSpacing(5);
-        return s;
+    private JSpinner buatSpinner() {
+        return new JSpinner(new SpinnerNumberModel(0, 0, 100, 1));
     }
 
-    private JPanel buatRowSlider(String label, JSlider slider, JLabel lblNilai) {
-        JPanel p = new JPanel(new BorderLayout(5, 0));
-        p.setBackground(Color.WHITE);
-        p.setAlignmentX(Component.LEFT_ALIGNMENT);
-        p.setMaximumSize(new Dimension(Integer.MAX_VALUE, 50));
-
-        JLabel lbl = new JLabel(label);
-        lbl.setFont(new Font("Segoe UI", Font.PLAIN, 12));
-        lbl.setPreferredSize(new Dimension(160, 20));
-        lblNilai.setFont(new Font("Segoe UI", Font.BOLD, 13));
-        lblNilai.setForeground(new Color(40, 100, 200));
-        lblNilai.setPreferredSize(new Dimension(35, 20));
-
-        slider.addChangeListener(e -> {
-            lblNilai.setText(String.valueOf(slider.getValue()));
-            updateHasilKPI();
-        });
-
-        p.add(lbl, BorderLayout.WEST);
-        p.add(slider, BorderLayout.CENTER);
-        p.add(lblNilai, BorderLayout.EAST);
-        return p;
+    private javax.swing.event.ChangeListener updateListener(Runnable r) {
+        return e -> r.run();
     }
 
-    private JPanel buatRowForm(String label, JComponent comp) {
-        JPanel p = new JPanel(new BorderLayout(8, 0));
-        p.setBackground(Color.WHITE);
-        p.setAlignmentX(Component.LEFT_ALIGNMENT);
-        p.setMaximumSize(new Dimension(Integer.MAX_VALUE, 32));
-        JLabel lbl = new JLabel(label);
-        lbl.setFont(new Font("Segoe UI", Font.PLAIN, 12));
-        lbl.setPreferredSize(new Dimension(170, 20));
-        if (comp instanceof JTextField) ((JTextField)comp).setFont(new Font("Segoe UI", Font.PLAIN, 12));
-        p.add(lbl, BorderLayout.WEST);
-        p.add(comp, BorderLayout.CENTER);
-        return p;
+    private int addRow(JPanel panel, GridBagConstraints gbc, int row, String label, JComponent comp) {
+        gbc.gridx = 0;
+        gbc.gridy = row;
+        gbc.weightx = 0;
+        panel.add(new JLabel(label + ":"), gbc);
+        gbc.gridx = 1;
+        gbc.weightx = 1.0;
+        panel.add(comp, gbc);
+        return row;
     }
 
-    private JLabel buatLabelKiri(String teks) {
-        JLabel lbl = new JLabel(teks);
-        lbl.setFont(new Font("Segoe UI", Font.PLAIN, 12));
-        lbl.setAlignmentX(Component.LEFT_ALIGNMENT);
-        lbl.setMaximumSize(new Dimension(Integer.MAX_VALUE, 20));
-        return lbl;
-    }
-
-    private JButton buatBtn(String teks, Color bg) {
-        JButton btn = new JButton(teks);
-        btn.setBackground(bg);
-        btn.setForeground(Color.WHITE);
-        btn.setFont(new Font("Segoe UI", Font.BOLD, 12));
-        btn.setFocusPainted(false);
-        btn.setBorder(new EmptyBorder(6, 12, 6, 12));
-        btn.setCursor(new Cursor(Cursor.HAND_CURSOR));
-        return btn;
-    }
-
-    // ===== Data operations =====
-
+    // ===== Data =====
     private void loadKaryawan() {
         try {
-            daftarKaryawan = controller.getAllKaryawan();
+            daftarKaryawan = controllerKaryawan.getAllKaryawan();
             cboKaryawan.removeAllItems();
             cboKaryawan.addItem("-- Pilih Karyawan --");
             for (ModelKaryawan k : daftarKaryawan) {
                 cboKaryawan.addItem("[" + k.getNik() + "] " + k.getNama());
             }
         } catch (Exception e) {
-            JOptionPane.showMessageDialog(this, "Gagal memuat karyawan: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+            JOptionPane.showMessageDialog(this, "Gagal memuat karyawan: " + e.getMessage(),
+                    "Error", JOptionPane.ERROR_MESSAGE);
         }
     }
 
     private void onKaryawanDipilih() {
         int idx = cboKaryawan.getSelectedIndex() - 1;
-        if (idx < 0) { selectedKaryawanId = -1; return; }
+        if (idx < 0) {
+            selectedKaryawanId = -1;
+            return;
+        }
         ModelKaryawan k = daftarKaryawan.get(idx);
         selectedKaryawanId = k.getId();
         gajiPokokKaryawan = k.getGajiPokok();
         loadRiwayatKPI(k.getId());
-        updateHasilKPI();
+        updateHasil();
     }
 
     private void loadRiwayatKPI(int karyawanId) {
-        controller.loadKPIByKaryawanAsync(karyawanId, new ControllerKaryawan.KPIListener() {
-            @Override public void onSuccess(String p) {}
-            @Override public void onError(String p) {
+        controllerKPI.loadKPIByKaryawanAsync(karyawanId, new ControllerKPI.KPIListener() {
+            @Override
+            public void onSuccess(String p) {
+            }
+
+            @Override
+            public void onError(String p) {
                 JOptionPane.showMessageDialog(EditData.this, p, "Error", JOptionPane.ERROR_MESSAGE);
             }
-            @Override public void onDataLoaded(List<ModelKPI> data) {
+
+            @Override
+            public void onDataLoaded(List<ModelKPI> data) {
                 isiTabel(data);
             }
         });
     }
 
     private void loadSemuaKPI() {
-        controller.loadKPIByPeriodeAsync(
-            (Integer) cboPeriode.getSelectedItem(),
-            cboBulan.getSelectedIndex() + 1,
-            new ControllerKaryawan.KPIListener() {
-                @Override public void onSuccess(String p) {}
-                @Override public void onError(String p) {
-                    JOptionPane.showMessageDialog(EditData.this, p, "Error", JOptionPane.ERROR_MESSAGE);
-                }
-                @Override public void onDataLoaded(List<ModelKPI> data) {
-                    isiTabel(data);
-                }
+        controllerKPI.loadSemuaKPIAsync(new ControllerKPI.KPIListener() {
+            @Override
+            public void onSuccess(String p) {
             }
-        );
+
+            @Override
+            public void onError(String p) {
+                JOptionPane.showMessageDialog(EditData.this, p, "Error", JOptionPane.ERROR_MESSAGE);
+            }
+
+            @Override
+            public void onDataLoaded(List<ModelKPI> data) {
+                isiTabel(data);
+                lblInfo.setText("Total: " + data.size() + " penilaian (semua periode)");
+            }
+        });
     }
 
     private void isiTabel(List<ModelKPI> data) {
         modelTabel.setRowCount(0);
-        NumberFormat rupiah = NumberFormat.getCurrencyInstance(new Locale("id", "ID"));
         int no = 1;
         for (ModelKPI kpi : data) {
             modelTabel.addRow(new Object[]{
@@ -383,52 +326,39 @@ public class EditData extends JPanel {
                 NAMA_BULAN[kpi.getBulan() - 1],
                 String.format("%.2f", kpi.hitungNilaiAkhir()),
                 kpi.getGradeKPI(),
-                rupiah.format(kpi.getBonusKPI(gajiPokokKaryawan)),
                 kpi.getPenilai()
             });
         }
+        lblInfo.setText("Total: " + data.size() + " penilaian");
     }
 
-    private void loadKPIKeForm() {
-        int row = tabelKPI.getSelectedRow();
-        if (row < 0) return;
-        JOptionPane.showMessageDialog(this,
-            "Klik kanan tabel → Edit, atau gunakan tombol Hapus untuk menghapus baris ini.",
-            "Info", JOptionPane.INFORMATION_MESSAGE);
-    }
-
-    private void updateHasilKPI() {
+    private void updateHasil() {
         ModelKPI kpi = buatKPIDariForm();
         double nilai = kpi.hitungNilaiAkhir();
         lblNilaiAkhir.setText(String.format("Nilai Akhir: %.2f / 100", nilai));
         lblGrade.setText("Grade: " + kpi.getGradeKPI());
         NumberFormat rupiah = NumberFormat.getCurrencyInstance(new Locale("id", "ID"));
         lblBonus.setText("Estimasi Bonus: " + rupiah.format(kpi.getBonusKPI(gajiPokokKaryawan)));
-
-        // Warna grade
-        double n = nilai;
-        Color c = n >= 80 ? new Color(0, 140, 0) : n >= 60 ? new Color(180, 120, 0) : new Color(200, 0, 0);
-        lblGrade.setForeground(c);
-        lblNilaiAkhir.setForeground(c);
     }
 
     private ModelKPI buatKPIDariForm() {
         ModelKPI kpi = new ModelKPI();
-        kpi.setNilaiProduktivitas(sliderProduktivitas.getValue());
-        kpi.setNilaiKualitas(sliderKualitas.getValue());
-        kpi.setNilaiKehadiran(sliderKehadiran.getValue());
-        kpi.setNilaiTeamwork(sliderTeamwork.getValue());
-        kpi.setNilaiInovasi(sliderInovasi.getValue());
+        kpi.setNilaiProduktivitas((Integer) spnProduktivitas.getValue());
+        kpi.setNilaiKualitas((Integer) spnKualitas.getValue());
+        kpi.setNilaiKehadiran((Integer) spnKehadiran.getValue());
+        kpi.setNilaiTeamwork((Integer) spnTeamwork.getValue());
+        kpi.setNilaiInovasi((Integer) spnInovasi.getValue());
         return kpi;
     }
 
     private void simpanKPI() {
         if (selectedKaryawanId < 0) {
-            JOptionPane.showMessageDialog(this, "Pilih karyawan terlebih dahulu!", "Peringatan", JOptionPane.WARNING_MESSAGE);
+            JOptionPane.showMessageDialog(this, "Pilih karyawan terlebih dahulu!");
             return;
         }
         int idx = cboKaryawan.getSelectedIndex() - 1;
         ModelKaryawan k = daftarKaryawan.get(idx);
+
         ModelKPI kpi = buatKPIDariForm();
         kpi.setKaryawanId(selectedKaryawanId);
         kpi.setNikKaryawan(k.getNik());
@@ -440,37 +370,38 @@ public class EditData extends JPanel {
         kpi.setPenilai(txtPenilai.getText().trim());
         kpi.setTanggalPenilaian(new Date());
 
-        controller.simpanKPIAsync(kpi, new ControllerKaryawan.KPIListener() {
-            @Override public void onSuccess(String p) {
-                JOptionPane.showMessageDialog(EditData.this, p, "Berhasil", JOptionPane.INFORMATION_MESSAGE);
+        controllerKPI.simpanKPIAsync(kpi, new ControllerKPI.KPIListener() {
+            @Override
+            public void onSuccess(String p) {
+                JOptionPane.showMessageDialog(EditData.this, p);
                 loadRiwayatKPI(selectedKaryawanId);
                 resetForm();
             }
-            @Override public void onError(String p) {
+
+            @Override
+            public void onError(String p) {
                 JOptionPane.showMessageDialog(EditData.this, p, "Error", JOptionPane.ERROR_MESSAGE);
             }
-            @Override public void onDataLoaded(List<ModelKPI> d) {}
+
+            @Override
+            public void onDataLoaded(List<ModelKPI> d) {
+            }
         });
     }
 
-    private void hapusKPI() {
-        int row = tabelKPI.getSelectedRow();
-        if (row < 0) { JOptionPane.showMessageDialog(this, "Pilih KPI di tabel untuk dihapus!"); return; }
-        int ok = JOptionPane.showConfirmDialog(this, "Yakin hapus penilaian KPI ini?",
-            "Konfirmasi", JOptionPane.YES_NO_OPTION);
-        if (ok != JOptionPane.YES_OPTION) return;
-        // Note: ideally pass real ID; for now notify user
-        JOptionPane.showMessageDialog(this, "Hapus: Double-klik baris untuk melihat detail, lalu konfirmasi hapus.", "Info", JOptionPane.INFORMATION_MESSAGE);
-    }
-
     private void resetForm() {
-        sliderProduktivitas.setValue(0); sliderKualitas.setValue(0);
-        sliderKehadiran.setValue(0); sliderTeamwork.setValue(0); sliderInovasi.setValue(0);
-        txtCatatan.setText(""); txtTarget.setText(""); txtPenilai.setText("");
-        selectedKPIId = -1;
-        btnHapus.setEnabled(false);
-        updateHasilKPI();
+        spnProduktivitas.setValue(0);
+        spnKualitas.setValue(0);
+        spnKehadiran.setValue(0);
+        spnTeamwork.setValue(0);
+        spnInovasi.setValue(0);
+        txtCatatan.setText("");
+        txtTarget.setText("");
+        txtPenilai.setText("");
+        updateHasil();
     }
 
-    public void refreshKaryawan() { loadKaryawan(); }
+    public void refreshKaryawan() {
+        loadKaryawan();
+    }
 }
