@@ -250,18 +250,21 @@ public class EditData extends JPanel {
         return row;
     }
 
-    // ===== Data =====
+    //Data
     private void loadKaryawan() {
         try {
             daftarKaryawan = controllerKaryawan.getAllKaryawan();
-            cboKaryawan.removeAllItems();
-            cboKaryawan.addItem("-- Pilih Karyawan --");
-            for (ModelKaryawan k : daftarKaryawan) {
-                cboKaryawan.addItem("[" + k.getNik() + "] " + k.getNama());
-            }
+            SwingUtilities.invokeLater(() -> {
+                cboKaryawan.removeAllItems();
+                cboKaryawan.addItem("-- Pilih Karyawan --");
+                for (ModelKaryawan k : daftarKaryawan) {
+                    cboKaryawan.addItem("[" + k.getNik() + "] " + k.getNama());
+                }
+            });
         } catch (Exception e) {
-            JOptionPane.showMessageDialog(this, "Gagal memuat karyawan: " + e.getMessage(),
-                    "Error", JOptionPane.ERROR_MESSAGE);
+            SwingUtilities.invokeLater(()
+                    -> JOptionPane.showMessageDialog(this, "Gagal memuat karyawan: " + e.getMessage(),
+                            "Error", JOptionPane.ERROR_MESSAGE));
         }
     }
 
@@ -279,40 +282,48 @@ public class EditData extends JPanel {
     }
 
     private void loadRiwayatKPI(int karyawanId) {
-        controllerKPI.loadKPIByKaryawanAsync(karyawanId, new ControllerKPI.KPIListener() {
-            @Override
-            public void onSuccess(String p) {
-            }
+        new Thread(()
+                -> controllerKPI.loadKPIByKaryawan(karyawanId, new ControllerKPI.KPIListener() {
+                    @Override
+                    public void onSuccess(String p) {
+                    }
 
-            @Override
-            public void onError(String p) {
-                JOptionPane.showMessageDialog(EditData.this, p, "Error", JOptionPane.ERROR_MESSAGE);
-            }
+                    @Override
+                    public void onError(String p) {
+                        SwingUtilities.invokeLater(()
+                                -> JOptionPane.showMessageDialog(EditData.this, p, "Error", JOptionPane.ERROR_MESSAGE));
+                    }
 
-            @Override
-            public void onDataLoaded(List<ModelKPI> data) {
-                isiTabel(data);
-            }
-        });
+                    @Override
+                    public void onDataLoaded(List<ModelKPI> data) {
+                        SwingUtilities.invokeLater(() -> isiTabel(data));
+                    }
+                }),
+                "Thread-LoadKPI").start();
     }
 
     private void loadSemuaKPI() {
-        controllerKPI.loadSemuaKPIAsync(new ControllerKPI.KPIListener() {
-            @Override
-            public void onSuccess(String p) {
-            }
+        new Thread(()
+                -> controllerKPI.loadSemuaKPI(new ControllerKPI.KPIListener() {
+                    @Override
+                    public void onSuccess(String p) {
+                    }
 
-            @Override
-            public void onError(String p) {
-                JOptionPane.showMessageDialog(EditData.this, p, "Error", JOptionPane.ERROR_MESSAGE);
-            }
+                    @Override
+                    public void onError(String p) {
+                        SwingUtilities.invokeLater(()
+                                -> JOptionPane.showMessageDialog(EditData.this, p, "Error", JOptionPane.ERROR_MESSAGE));
+                    }
 
-            @Override
-            public void onDataLoaded(List<ModelKPI> data) {
-                isiTabel(data);
-                lblInfo.setText("Total: " + data.size() + " penilaian (semua periode)");
-            }
-        });
+                    @Override
+                    public void onDataLoaded(List<ModelKPI> data) {
+                        SwingUtilities.invokeLater(() -> {
+                            isiTabel(data);
+                            lblInfo.setText("Total: " + data.size() + " penilaian (semua periode)");
+                        });
+                    }
+                }),
+                "Thread-LoadSemuaKPI").start();
     }
 
     private void isiTabel(List<ModelKPI> data) {
@@ -370,23 +381,28 @@ public class EditData extends JPanel {
         kpi.setPenilai(txtPenilai.getText().trim());
         kpi.setTanggalPenilaian(new Date());
 
-        controllerKPI.simpanKPIAsync(kpi, new ControllerKPI.KPIListener() {
-            @Override
-            public void onSuccess(String p) {
-                JOptionPane.showMessageDialog(EditData.this, p);
-                loadRiwayatKPI(selectedKaryawanId);
-                resetForm();
-            }
+        new Thread(()
+                -> controllerKPI.simpanKPI(kpi, new ControllerKPI.KPIListener() {
+                    @Override
+                    public void onSuccess(String p) {
+                        SwingUtilities.invokeLater(() -> {
+                            JOptionPane.showMessageDialog(EditData.this, p);
+                            loadRiwayatKPI(selectedKaryawanId);
+                            resetForm();
+                        });
+                    }
 
-            @Override
-            public void onError(String p) {
-                JOptionPane.showMessageDialog(EditData.this, p, "Error", JOptionPane.ERROR_MESSAGE);
-            }
+                    @Override
+                    public void onError(String p) {
+                        SwingUtilities.invokeLater(()
+                                -> JOptionPane.showMessageDialog(EditData.this, p, "Error", JOptionPane.ERROR_MESSAGE));
+                    }
 
-            @Override
-            public void onDataLoaded(List<ModelKPI> d) {
-            }
-        });
+                    @Override
+                    public void onDataLoaded(List<ModelKPI> d) {
+                    }
+                }),
+                 "Thread-SimpanKPI").start();
     }
 
     private void resetForm() {

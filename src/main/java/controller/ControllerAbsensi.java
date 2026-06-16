@@ -18,45 +18,39 @@ public class ControllerAbsensi {
         void onDataLoaded(List<ModelAbsensi> data);
     }
 
-    public void simpanAbsensiAsync(ModelAbsensi a, AbsensiListener listener) {
-        new Thread(() -> {
-            try {
-                boolean ok = daoAbsensi.simpan(a);
-                if (ok) {
-                    javax.swing.SwingUtilities.invokeLater(() -> listener.onSuccess("Absensi berhasil dicatat!"));
-                } else {
-                    javax.swing.SwingUtilities.invokeLater(() -> listener.onError("Gagal mencatat absensi."));
-                }
-            } catch (SQLException e) {
-                javax.swing.SwingUtilities.invokeLater(() -> listener.onError(e.getMessage()));
+    public void simpanAbsensi(ModelAbsensi a, AbsensiListener listener) {
+        try {
+            boolean ok = daoAbsensi.simpan(a);
+            if (ok) {
+                listener.onSuccess("Absensi berhasil dicatat!");
+            } else {
+                listener.onError("Gagal mencatat absensi.");
             }
-        }, "Thread-SimpanAbsensi").start();
+        } catch (SQLException e) {
+            listener.onError(e.getMessage());
+        }
     }
 
-    public void loadAbsensiAsync(AbsensiListener listener) {
-        new Thread(() -> {
-            try {
-                List<ModelAbsensi> list = daoAbsensi.getAll();
-                javax.swing.SwingUtilities.invokeLater(() -> listener.onDataLoaded(list));
-            } catch (SQLException e) {
-                javax.swing.SwingUtilities.invokeLater(() -> listener.onError(e.getMessage()));
-            }
-        }, "Thread-LoadAbsensi").start();
+    public void loadAbsensi(AbsensiListener listener) {
+        try {
+            List<ModelAbsensi> list = daoAbsensi.getAll();
+            listener.onDataLoaded(list);
+        } catch (SQLException e) {
+            listener.onError(e.getMessage());
+        }
     }
 
-    public void hapusAbsensiAsync(int id, AbsensiListener listener) {
-        new Thread(() -> {
-            try {
-                boolean ok = daoAbsensi.hapus(id);
-                if (ok) {
-                    javax.swing.SwingUtilities.invokeLater(() -> listener.onSuccess("Absensi berhasil dihapus!"));
-                } else {
-                    javax.swing.SwingUtilities.invokeLater(() -> listener.onError("Gagal menghapus absensi."));
-                }
-            } catch (SQLException e) {
-                javax.swing.SwingUtilities.invokeLater(() -> listener.onError(e.getMessage()));
+    public void hapusAbsensi(int id, AbsensiListener listener) {
+        try {
+            boolean ok = daoAbsensi.hapus(id);
+            if (ok) {
+                listener.onSuccess("Absensi berhasil dihapus!");
+            } else {
+                listener.onError("Gagal menghapus absensi.");
             }
-        }, "Thread-HapusAbsensi").start();
+        } catch (SQLException e) {
+            listener.onError(e.getMessage());
+        }
     }
 
     public int getTotalAbsensi() throws SQLException {
