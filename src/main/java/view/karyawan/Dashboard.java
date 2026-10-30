@@ -133,37 +133,26 @@ public class Dashboard extends JPanel {
                 List<ModelKaryawan> semua = controllerKaryawan.getAllKaryawan();
                 List<ModelKaryawan> aktif = controllerKaryawan.getKaryawanAktif();
                 int totalKPI = controllerKPI.getTotalKPI();
+                List<ModelKPI> semuaKPI = controllerKPI.getAllKPI();
 
                 int nonAktif = (int) semua.stream()
                         .filter(k -> !"AKTIF".equals(k.getStatus())).count();
 
-                // Hitung per departemen
                 Map<String, Integer> countDept = new LinkedHashMap<>();
                 for (ModelKaryawan k : semua) {
                     countDept.merge(k.getDepartemen(), 1, Integer::sum);
                 }
 
-                // KPI terbaru — ambil semua lalu ambil 10 teratas
-                List<ModelKPI> semuaKPI = controllerKPI.getAllKPI();
-
-                final int total = semua.size();
-                final int jmlAktif = aktif.size();
-                final int jmlNon = nonAktif;
-                final int jmlKPI = totalKPI;
-
                 SwingUtilities.invokeLater(() -> {
-                    lblTotalKaryawan.setText(String.valueOf(total));
-                    lblKaryawanAktif.setText(String.valueOf(jmlAktif));
-                    lblTotalNonAktif.setText(String.valueOf(jmlNon));
-                    lblTotalKPI.setText(String.valueOf(jmlKPI));
+                    lblTotalKaryawan.setText(String.valueOf(semua.size()));
+                    lblKaryawanAktif.setText(String.valueOf(aktif.size()));
+                    lblTotalNonAktif.setText(String.valueOf(nonAktif));
+                    lblTotalKPI.setText(String.valueOf(totalKPI));
 
-                    // Isi tabel dept
                     modelDept.setRowCount(0);
                     countDept.forEach((dept, jml)
-                            -> modelDept.addRow(new Object[]{dept, jml})
-                    );
+                            -> modelDept.addRow(new Object[]{dept, jml}));
 
-                    // Isi tabel KPI terbaru (max 10)
                     modelKPITerbaru.setRowCount(0);
                     int batas = Math.min(semuaKPI.size(), 10);
                     for (int i = 0; i < batas; i++) {

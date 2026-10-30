@@ -306,16 +306,20 @@ public class InputData extends JDialog {
             ControllerKaryawan.DataListener listener = new ControllerKaryawan.DataListener() {
                 @Override
                 public void onSuccess(String p) {
-                    saved = true;
-                    JOptionPane.showMessageDialog(InputData.this, p);
-                    dispose();
+                    SwingUtilities.invokeLater(() -> {
+                        saved = true;
+                        JOptionPane.showMessageDialog(InputData.this, p);
+                        dispose();
+                    });
                 }
 
                 @Override
                 public void onError(String p) {
-                    btnSimpan.setEnabled(true);
-                    btnSimpan.setText(isEdit ? "Update" : "Simpan");
-                    JOptionPane.showMessageDialog(InputData.this, p, "Error", JOptionPane.ERROR_MESSAGE);
+                    SwingUtilities.invokeLater(() -> {
+                        btnSimpan.setEnabled(true);
+                        btnSimpan.setText(isEdit ? "Update" : "Simpan");
+                        JOptionPane.showMessageDialog(InputData.this, p, "Error", JOptionPane.ERROR_MESSAGE);
+                    });
                 }
 
                 @Override
@@ -324,9 +328,9 @@ public class InputData extends JDialog {
             };
 
             if (isEdit) {
-                controller.updateKaryawanAsync(karyawan, listener);
+                new Thread(() -> controller.updateKaryawan(karyawan, listener), "Thread-UpdateKaryawan").start();
             } else {
-                controller.simpanKaryawanAsync(karyawan, listener);
+                new Thread(() -> controller.simpanKaryawan(karyawan, listener), "Thread-SimpanKaryawan").start();
             }
 
         } catch (IllegalArgumentException e) {

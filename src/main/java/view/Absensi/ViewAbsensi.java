@@ -200,36 +200,40 @@ public class ViewAbsensi extends JPanel {
     }
 
     private void loadAbsensi() {
-        controllerAbsensi.loadAbsensiAsync(new ControllerAbsensi.AbsensiListener() {
-            @Override
-            public void onSuccess(String p) {
-            }
+        new Thread(()
+                -> controllerAbsensi.loadAbsensi(new ControllerAbsensi.AbsensiListener() {
+                    @Override
+                    public void onSuccess(String p) {
+                    }
 
-            @Override
-            public void onError(String p) {
-                lblInfo.setText("Error: " + p);
-            }
+                    @Override
+                    public void onError(String p) {
+                        SwingUtilities.invokeLater(() -> lblInfo.setText("Error: " + p));
+                    }
 
-            @Override
-            public void onDataLoaded(List<ModelAbsensi> data) {
-                modelTabel.setRowCount(0);
-                SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
-                int no = 1;
-                for (ModelAbsensi a : data) {
-                    modelTabel.addRow(new Object[]{
-                        no++,
-                        a.getNamaKaryawan(),
-                        a.getTanggal() != null ? sdf.format(a.getTanggal()) : "-",
-                        a.getJamMasuk() != null ? a.getJamMasuk() : "-",
-                        a.getJamKeluar() != null ? a.getJamKeluar() : "-",
-                        a.getStatus().name(),
-                        a.isTerlambat() ? a.getMenitTerlambat() + " menit" : "Tidak",
-                        a.getKeterangan() != null ? a.getKeterangan() : ""
-                    });
-                }
-                lblInfo.setText("Total: " + data.size() + " catatan");
-            }
-        });
+                    @Override
+                    public void onDataLoaded(List<ModelAbsensi> data) {
+                        SwingUtilities.invokeLater(() -> {
+                            modelTabel.setRowCount(0);
+                            SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
+                            int no = 1;
+                            for (ModelAbsensi a : data) {
+                                modelTabel.addRow(new Object[]{
+                                    no++,
+                                    a.getNamaKaryawan(),
+                                    a.getTanggal() != null ? sdf.format(a.getTanggal()) : "-",
+                                    a.getJamMasuk() != null ? a.getJamMasuk() : "-",
+                                    a.getJamKeluar() != null ? a.getJamKeluar() : "-",
+                                    a.getStatus().name(),
+                                    a.isTerlambat() ? a.getMenitTerlambat() + " menit" : "Tidak",
+                                    a.getKeterangan() != null ? a.getKeterangan() : ""
+                                });
+                            }
+                            lblInfo.setText("Total: " + data.size() + " catatan");
+                        });
+                    }
+                }),
+                "Thread-LoadAbsensi").start();
     }
 
     private void simpanAbsensi() {
@@ -247,7 +251,6 @@ public class ViewAbsensi extends JPanel {
                 || status.equals("DINAS_LUAR")
                 || status.equals("WORK_FROM_HOME"));
 
-        // Validasi jam hanya kalau status hadir
         if (isHadir) {
             if (!jamMasuk.matches("^([01]\\d|2[0-3]):[0-5]\\d$")) {
                 JOptionPane.showMessageDialog(this,
@@ -272,13 +275,12 @@ public class ViewAbsensi extends JPanel {
             a.setTanggal(new SimpleDateFormat("dd/MM/yyyy").parse(txtTanggal.getText().trim()));
         } catch (Exception e) {
             JOptionPane.showMessageDialog(this,
-                    "Format tanggal tidak valid!\nGunakan format dd/MM/yyyy, contoh: 01/01/2025",
+                    "Format tanggal tidak valid!\nGunakan format dd/MM/yyyy",
                     "Validasi", JOptionPane.WARNING_MESSAGE);
             txtTanggal.requestFocus();
             return;
         }
 
-        // Kalau bukan hadir, jam disimpan null / kosong
         a.setJamMasuk(isHadir ? jamMasuk : null);
         a.setJamKeluar(isHadir ? jamKeluar : null);
         a.setKeterangan(txtKeterangan.getText().trim());
@@ -292,23 +294,28 @@ public class ViewAbsensi extends JPanel {
             a.setStatus(ModelAbsensi.StatusAbsensi.HADIR);
         }
 
-        controllerAbsensi.simpanAbsensiAsync(a, new ControllerAbsensi.AbsensiListener() {
-            @Override
-            public void onSuccess(String p) {
-                JOptionPane.showMessageDialog(ViewAbsensi.this, p);
-                loadAbsensi();
-                resetForm();
-            }
+        new Thread(()
+                -> controllerAbsensi.simpanAbsensi(a, new ControllerAbsensi.AbsensiListener() {
+                    @Override
+                    public void onSuccess(String p) {
+                        SwingUtilities.invokeLater(() -> {
+                            JOptionPane.showMessageDialog(ViewAbsensi.this, p);
+                            loadAbsensi();
+                            resetForm();
+                        });
+                    }
 
-            @Override
-            public void onError(String p) {
-                JOptionPane.showMessageDialog(ViewAbsensi.this, p, "Error", JOptionPane.ERROR_MESSAGE);
-            }
+                    @Override
+                    public void onError(String p) {
+                        SwingUtilities.invokeLater(()
+                                -> JOptionPane.showMessageDialog(ViewAbsensi.this, p, "Error", JOptionPane.ERROR_MESSAGE));
+                    }
 
-            @Override
-            public void onDataLoaded(List<ModelAbsensi> d) {
-            }
-        });
+                    @Override
+                    public void onDataLoaded(List<ModelAbsensi> d) {
+                    }
+                }),
+                 "Thread-SimpanAbsensi").start();
     }
 
     private void resetForm() {

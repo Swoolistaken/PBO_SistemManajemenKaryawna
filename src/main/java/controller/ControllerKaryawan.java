@@ -18,92 +18,80 @@ public class ControllerKaryawan {
         void onDataLoaded(List<ModelKaryawan> data);
     }
 
-    public void loadAllKaryawanAsync(DataListener listener) {
-        new Thread(() -> {
-            try {
-                List<ModelKaryawan> list = daoKaryawan.getAll();
-                javax.swing.SwingUtilities.invokeLater(() -> listener.onDataLoaded(list));
-            } catch (SQLException e) {
-                javax.swing.SwingUtilities.invokeLater(() -> listener.onError(e.getMessage()));
-            }
-        }, "Thread-LoadKaryawan").start();
+    public void loadAllKaryawan(DataListener listener) {
+        try {
+            List<ModelKaryawan> list = daoKaryawan.getAll();
+            listener.onDataLoaded(list);
+        } catch (SQLException e) {
+            listener.onError(e.getMessage());
+        }
     }
 
-    public void cariKaryawanAsync(String keyword, DataListener listener) {
-        new Thread(() -> {
-            try {
-                List<ModelKaryawan> list = keyword.isEmpty()
-                        ? daoKaryawan.getAll()
-                        : daoKaryawan.cari(keyword);
-                javax.swing.SwingUtilities.invokeLater(() -> listener.onDataLoaded(list));
-            } catch (SQLException e) {
-                javax.swing.SwingUtilities.invokeLater(() -> listener.onError(e.getMessage()));
-            }
-        }, "Thread-CariKaryawan").start();
+    public void cariKaryawan(String keyword, DataListener listener) {
+        try {
+            List<ModelKaryawan> list = keyword.isEmpty()
+                    ? daoKaryawan.getAll()
+                    : daoKaryawan.cari(keyword);
+            listener.onDataLoaded(list);
+        } catch (SQLException e) {
+            listener.onError(e.getMessage());
+        }
     }
 
-    public void loadKaryawanByDeptAsync(String dept, DataListener listener) {
-        new Thread(() -> {
-            try {
-                List<ModelKaryawan> list = dept.equals("Semua")
-                        ? daoKaryawan.getAll()
-                        : daoKaryawan.getByDepartemen(dept);
-                javax.swing.SwingUtilities.invokeLater(() -> listener.onDataLoaded(list));
-            } catch (SQLException e) {
-                javax.swing.SwingUtilities.invokeLater(() -> listener.onError(e.getMessage()));
-            }
-        }, "Thread-FilterDept").start();
+    public void loadKaryawanByDept(String dept, DataListener listener) {
+        try {
+            List<ModelKaryawan> list = dept.equals("Semua")
+                    ? daoKaryawan.getAll()
+                    : daoKaryawan.getByDepartemen(dept);
+            listener.onDataLoaded(list);
+        } catch (SQLException e) {
+            listener.onError(e.getMessage());
+        }
     }
 
-    public void simpanKaryawanAsync(ModelKaryawan k, DataListener listener) {
-        new Thread(() -> {
-            try {
-                validasi(k);
-                boolean ok = daoKaryawan.simpan(k);
-                if (ok) {
-                    javax.swing.SwingUtilities.invokeLater(() -> listener.onSuccess("Karyawan berhasil disimpan!"));
-                } else {
-                    javax.swing.SwingUtilities.invokeLater(() -> listener.onError("Gagal menyimpan karyawan."));
-                }
-            } catch (IllegalArgumentException e) {
-                javax.swing.SwingUtilities.invokeLater(() -> listener.onError("Validasi gagal: " + e.getMessage()));
-            } catch (SQLException e) {
-                javax.swing.SwingUtilities.invokeLater(() -> listener.onError(e.getMessage()));
+    public void simpanKaryawan(ModelKaryawan k, DataListener listener) {
+        try {
+            validasi(k);
+            boolean ok = daoKaryawan.simpan(k);
+            if (ok) {
+                listener.onSuccess("Karyawan berhasil disimpan!");
+            } else {
+                listener.onError("Gagal menyimpan karyawan.");
             }
-        }, "Thread-SimpanKaryawan").start();
+        } catch (IllegalArgumentException e) {
+            listener.onError("Validasi gagal: " + e.getMessage());
+        } catch (SQLException e) {
+            listener.onError(e.getMessage());
+        }
     }
 
-    public void updateKaryawanAsync(ModelKaryawan k, DataListener listener) {
-        new Thread(() -> {
-            try {
-                validasi(k);
-                boolean ok = daoKaryawan.update(k);
-                if (ok) {
-                    javax.swing.SwingUtilities.invokeLater(() -> listener.onSuccess("Data karyawan berhasil diupdate!"));
-                } else {
-                    javax.swing.SwingUtilities.invokeLater(() -> listener.onError("Gagal mengupdate karyawan."));
-                }
-            } catch (IllegalArgumentException e) {
-                javax.swing.SwingUtilities.invokeLater(() -> listener.onError("Validasi: " + e.getMessage()));
-            } catch (SQLException e) {
-                javax.swing.SwingUtilities.invokeLater(() -> listener.onError(e.getMessage()));
+    public void updateKaryawan(ModelKaryawan k, DataListener listener) {
+        try {
+            validasi(k);
+            boolean ok = daoKaryawan.update(k);
+            if (ok) {
+                listener.onSuccess("Data karyawan berhasil diupdate!");
+            } else {
+                listener.onError("Gagal mengupdate karyawan.");
             }
-        }, "Thread-UpdateKaryawan").start();
+        } catch (IllegalArgumentException e) {
+            listener.onError("Validasi: " + e.getMessage());
+        } catch (SQLException e) {
+            listener.onError(e.getMessage());
+        }
     }
 
-    public void hapusKaryawanAsync(int id, DataListener listener) {
-        new Thread(() -> {
-            try {
-                boolean ok = daoKaryawan.hapus(id);
-                if (ok) {
-                    javax.swing.SwingUtilities.invokeLater(() -> listener.onSuccess("Karyawan berhasil dihapus!"));
-                } else {
-                    javax.swing.SwingUtilities.invokeLater(() -> listener.onError("Gagal menghapus karyawan."));
-                }
-            } catch (SQLException e) {
-                javax.swing.SwingUtilities.invokeLater(() -> listener.onError(e.getMessage()));
+    public void hapusKaryawan(int id, DataListener listener) {
+        try {
+            boolean ok = daoKaryawan.hapus(id);
+            if (ok) {
+                listener.onSuccess("Karyawan berhasil dihapus!");
+            } else {
+                listener.onError("Gagal menghapus karyawan.");
             }
-        }, "Thread-HapusKaryawan").start();
+        } catch (SQLException e) {
+            listener.onError(e.getMessage());
+        }
     }
 
     public List<ModelKaryawan> getAllKaryawan() throws SQLException {

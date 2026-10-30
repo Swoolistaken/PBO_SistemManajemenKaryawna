@@ -163,74 +163,77 @@ public class ViewData extends JPanel {
 
     public void loadData() {
         lblStatus.setText("Memuat data...");
-        controller.loadAllKaryawanAsync(new ControllerKaryawan.DataListener() {
-            @Override
-            public void onSuccess(String p) {
-            }
+        new Thread(()
+                -> controller.loadAllKaryawan(new ControllerKaryawan.DataListener() {
+                    @Override
+                    public void onSuccess(String p) {
+                    }
 
-            @Override
-            public void onError(String p) {
-                lblStatus.setText("Error: " + p);
-                JOptionPane.showMessageDialog(ViewData.this, p, "Error", JOptionPane.ERROR_MESSAGE);
-            }
+                    @Override
+                    public void onError(String p) {
+                        SwingUtilities.invokeLater(() -> {
+                            lblStatus.setText("Error: " + p);
+                            JOptionPane.showMessageDialog(ViewData.this, p, "Error", JOptionPane.ERROR_MESSAGE);
+                        });
+                    }
 
-            @Override
-            public void onDataLoaded(List<ModelKaryawan> data) {
-                tableModel.setData(data);
-                lblStatus.setText("Total: " + data.size() + " karyawan");
-            }
-        });
+                    @Override
+                    public void onDataLoaded(List<ModelKaryawan> data) {
+                        SwingUtilities.invokeLater(() -> {
+                            tableModel.setData(data);
+                            lblStatus.setText("Total: " + data.size() + " karyawan");
+                        });
+                    }
+                }),
+                 "Thread-LoadKaryawan").start();
     }
 
     private void cariData() {
         String keyword = txtCari.getText().trim();
-        controller.cariKaryawanAsync(keyword, new ControllerKaryawan.DataListener() {
-            @Override
-            public void onSuccess(String p) {
-            }
+        new Thread(()
+                -> controller.cariKaryawan(keyword, new ControllerKaryawan.DataListener() {
+                    @Override
+                    public void onSuccess(String p) {
+                    }
 
-            @Override
-            public void onError(String p) {
-                lblStatus.setText("Error: " + p);
-            }
+                    @Override
+                    public void onError(String p) {
+                        SwingUtilities.invokeLater(() -> lblStatus.setText("Error: " + p));
+                    }
 
-            @Override
-            public void onDataLoaded(List<ModelKaryawan> data) {
-                tableModel.setData(data);
-                lblStatus.setText(data.size() + " hasil untuk: \"" + keyword + "\"");
-            }
-        });
+                    @Override
+                    public void onDataLoaded(List<ModelKaryawan> data) {
+                        SwingUtilities.invokeLater(() -> {
+                            tableModel.setData(data);
+                            lblStatus.setText(data.size() + " hasil untuk: \"" + keyword + "\"");
+                        });
+                    }
+                }),
+                 "Thread-CariKaryawan").start();
     }
 
     private void filterByDept() {
         String dept = (String) cboDept.getSelectedItem();
-        controller.loadKaryawanByDeptAsync(dept, new ControllerKaryawan.DataListener() {
-            @Override
-            public void onSuccess(String p) {
-            }
+        new Thread(()
+                -> controller.loadKaryawanByDept(dept, new ControllerKaryawan.DataListener() {
+                    @Override
+                    public void onSuccess(String p) {
+                    }
 
-            @Override
-            public void onError(String p) {
-                lblStatus.setText("Error: " + p);
-            }
+                    @Override
+                    public void onError(String p) {
+                        SwingUtilities.invokeLater(() -> lblStatus.setText("Error: " + p));
+                    }
 
-            @Override
-            public void onDataLoaded(List<ModelKaryawan> data) {
-                tableModel.setData(data);
-                lblStatus.setText(data.size() + " karyawan di: " + dept);
-            }
-        });
-    }
-
-    private void editSelected() {
-        int row = table.getSelectedRow();
-        if (row < 0) {
-            JOptionPane.showMessageDialog(this, "Pilih karyawan terlebih dahulu!");
-            return;
-        }
-        if (callback != null) {
-            callback.onEdit(tableModel.getKaryawan(row));
-        }
+                    @Override
+                    public void onDataLoaded(List<ModelKaryawan> data) {
+                        SwingUtilities.invokeLater(() -> {
+                            tableModel.setData(data);
+                            lblStatus.setText(data.size() + " karyawan di: " + dept);
+                        });
+                    }
+                }),
+                 "Thread-FilterDept").start();
     }
 
     private void hapusSelected() {
@@ -247,21 +250,37 @@ public class ViewData extends JPanel {
             return;
         }
 
-        controller.hapusKaryawanAsync(k.getId(), new ControllerKaryawan.DataListener() {
-            @Override
-            public void onSuccess(String p) {
-                JOptionPane.showMessageDialog(ViewData.this, p);
-                loadData();
-            }
+        new Thread(()
+                -> controller.hapusKaryawan(k.getId(), new ControllerKaryawan.DataListener() {
+                    @Override
+                    public void onSuccess(String p) {
+                        SwingUtilities.invokeLater(() -> {
+                            JOptionPane.showMessageDialog(ViewData.this, p);
+                            loadData();
+                        });
+                    }
 
-            @Override
-            public void onError(String p) {
-                JOptionPane.showMessageDialog(ViewData.this, p, "Error", JOptionPane.ERROR_MESSAGE);
-            }
+                    @Override
+                    public void onError(String p) {
+                        SwingUtilities.invokeLater(()
+                                -> JOptionPane.showMessageDialog(ViewData.this, p, "Error", JOptionPane.ERROR_MESSAGE));
+                    }
 
-            @Override
-            public void onDataLoaded(List<ModelKaryawan> d) {
-            }
-        });
+                    @Override
+                    public void onDataLoaded(List<ModelKaryawan> d) {
+                    }
+                }),
+                 "Thread-HapusKaryawan").start();
+    }
+
+    private void editSelected() {
+        int row = table.getSelectedRow();
+        if (row < 0) {
+            JOptionPane.showMessageDialog(this, "Pilih karyawan terlebih dahulu!");
+            return;
+        }
+        if (callback != null) {
+            callback.onEdit(tableModel.getKaryawan(row));
+        }
     }
 }

@@ -112,21 +112,27 @@ public class LoginForm extends JFrame {
         btnLogin.setText("Loading...");
         lblError.setText(" ");
 
-        controllerAuth.loginAsync(username, password, new ControllerAuth.LoginListener() {
-            @Override
-            public void onSuccess(User user) {
-                dispose();
-                new MainFrame(user).setVisible(true);
-            }
+        new Thread(()
+                -> controllerAuth.login(username, password, new ControllerAuth.LoginListener() {
+                    @Override
+                    public void onSuccess(User user) {
+                        SwingUtilities.invokeLater(() -> {
+                            dispose();
+                            new MainFrame(user).setVisible(true);
+                        });
+                    }
 
-            @Override
-            public void onError(String pesan) {
-                lblError.setText(pesan);
-                btnLogin.setEnabled(true);
-                btnLogin.setText("Login");
-                txtPassword.setText("");
-                txtPassword.requestFocus();
-            }
-        });
+                    @Override
+                    public void onError(String pesan) {
+                        SwingUtilities.invokeLater(() -> {
+                            lblError.setText(pesan);
+                            btnLogin.setEnabled(true);
+                            btnLogin.setText("Login");
+                            txtPassword.setText("");
+                            txtPassword.requestFocus();
+                        });
+                    }
+                }),
+                "Thread-Login").start();
     }
 }
